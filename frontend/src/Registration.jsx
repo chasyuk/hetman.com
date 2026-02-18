@@ -8,6 +8,13 @@ export function Registration() {
     const [isLogin, setIsLogin] = useState(false);
     const [errorMessage, setErrorMessage] = useState("")
 
+    const showError = function(err) {
+        setErrorMessage(err);
+        setTimeout(() => {
+            setErrorMessage("")
+        }, 5000)
+    }
+
     const handleRegistrationPage = async (userData, endpoint) => {
         if (endpoint.includes("login")) {
             try {
@@ -17,7 +24,7 @@ export function Registration() {
             });
             setIsLoggedIn(true);
             } catch (error) {
-                setErrorMessage(error.response?.data?.detail);
+                showError(error.response?.data?.detail);
             }
 
         } else{
@@ -29,7 +36,7 @@ export function Registration() {
                 password: userData.password,
             });
         } catch (error) {
-            setErrorMessage(error.response?.data?.detail);
+            showError(error.response?.data?.detail);
         }
 
         }
@@ -66,7 +73,7 @@ export function Registration() {
         }
 
         if (isFormEmpty) {
-            setErrorMessage("Please Fill Out All The Fields!")
+            showError("Please Fill Out All The Fields!")
         } else {
             const newUser = {
                 codename: userData.codename,

@@ -1,0 +1,21 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app  # Syncs your code so hot-reload works!
+    environment:
+      - WATCHFILES_FORCE_POLLING=true # Helps reload on Windows/WSL
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Prevents your local node_modules from overriding container's
+    environment:
+      - CHOKIDAR_USEPOLLING=true # Essential for React hot-reload in Docker
+    depends_on:
+      - backend

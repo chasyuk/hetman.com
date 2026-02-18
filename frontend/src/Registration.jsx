@@ -6,8 +6,9 @@ export function Registration() {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [isLogin, setIsLogin] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("")
 
-    const registerUser = async (userData, endpoint) => {
+    const handleRegistrationPage = async (userData, endpoint) => {
         if (endpoint.includes("login")) {
             try {
             await axios.post(endpoint, {
@@ -16,7 +17,7 @@ export function Registration() {
             });
             setIsLoggedIn(true);
             } catch (error) {
-                alert(error.response?.data?.detail);
+                setErrorMessage(error.response?.data?.detail);
             }
 
         } else{
@@ -28,7 +29,7 @@ export function Registration() {
                 password: userData.password,
             });
         } catch (error) {
-            alert(error.response?.data?.detail);
+            setErrorMessage(error.response?.data?.detail);
         }
 
         }
@@ -65,7 +66,7 @@ export function Registration() {
         }
 
         if (isFormEmpty) {
-            alert("Please Fill Out All The Fields!")
+            setErrorMessage("Please Fill Out All The Fields!")
         } else {
             const newUser = {
                 codename: userData.codename,
@@ -73,17 +74,19 @@ export function Registration() {
                 email: userData.email,
                 password: userData.password
             };
-            registerUser(newUser, endpoint);
+            handleRegistrationPage(newUser, endpoint);
         }
 
     }
 
   if (isLoggedIn) {
     return (
-    <div>
-        <h1>Succesfully Logged In!</h1>
-    </div>
-    )
+            <div>
+                <h1>Successfully Logged In!</h1>
+                {/* Add a logout button to test the flow */}
+                <button onClick={() => setIsLoggedIn(false)}>Logout</button>
+            </div>
+        );
   } else {
     return (
         <div>
@@ -91,20 +94,20 @@ export function Registration() {
             <form onSubmit={submitUser}>
                 {!isLogin && (
                     <div>
-                        <input name="codename" type="text" onChange={changeData} placeholder='Your codename...' value={userData.codename}></input><br />
-                        <input name="name" type="text" onChange={changeData} placeholder='Your Name...' value={userData.name}></input><br />
+                        <input style={{border: "1px solid black"}} name="codename" type="text" onChange={changeData} placeholder='Your codename...' value={userData.codename}></input><br />
+                        <input style={{border: "1px solid black"}} name="name" type="text" onChange={changeData} placeholder='Your Name...' value={userData.name}></input><br />
                     </div>
                 )}
-                <input name="email" type="email" onChange={changeData} placeholder='Your Email...' value={userData.email} required></input><br />
-                <input name="password" type="password" onChange={changeData} placeholder='Your Password...' value={userData.password}></input><br />
+                <input style={{border: "1px solid black"}} name="email" type="email" onChange={changeData} placeholder='Your Email...' value={userData.email} required></input><br />
+                <input style={{border: "1px solid black"}} name="password" type="password" onChange={changeData} placeholder='Your Password...' value={userData.password}></input><br />
 
             <button type="submit">{isLogin ? "Login" : "Register"}</button>
         </form>
+        {errorMessage && <p style={{color : "red"}}>{errorMessage}</p>}
 
-
-        <p style={{ marginTop: '20px' }}>
+        <p>
             {isLogin ? "No account? " : "Already have an account? "}
-            <button onClick={() => setIsLogin(!isLogin)} style={{ background: 'none', border: 'none', color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}>
+            <button onClick={() => setIsLogin(!isLogin)} style={{ background: 'none', color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}>
             {isLogin ? "Register here" : "Login here"}
             </button>
         </p>

@@ -1,15 +1,55 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './App.css'
+import axios from 'axios';
 
 export function Registration() {
+
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isLogin, setIsLogin] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("")
+
+    const showError = function(err) {
+        setErrorMessage(err);
+        setTimeout(() => {
+            setErrorMessage("")
+        }, 5000)
+    }
+
+    const handleRegistrationPage = async (userData, endpoint) => {
+        if (endpoint.includes("login")) {
+            try {
+            await axios.post(endpoint, {
+                email: userData.email,
+                password: userData.password,
+            });
+            setIsLoggedIn(true);
+            } catch (error) {
+                showError(error.response?.data?.detail);
+            }
+
+        } else{
+            try {
+            await axios.post(endpoint, {
+                codename: userData.codename,
+                name: userData.name,
+                email: userData.email,
+                password: userData.password,
+            });
+        } catch (error) {
+            showError(error.response?.data?.detail);
+        }
+
+        }
+    };
+
+
+
     const [userData, setUserData] = useState({
-        codeName: "",
+        codename: "",
         name: "",
         email: "",
         password: ""
     })
-
-    const [users, setUsers] = useState(JSON.parse(localStorage.getItem("users")) || []);
 
     function changeData(e) {
         const { name, value } = e.target
@@ -19,55 +59,66 @@ export function Registration() {
         });
     }
 
-    function handleRegistrateUser(newUser) {
-        setUsers([...users, newUser])
-        setUserData("")
-    }
-
-    function submitUser(e){
+    const submitUser = async(e) =>{
         e.preventDefault()
 
-        const isFormEmpty = !userData.codeName?.trim() || !userData.name?.trim() || !userData.email?.trim() || !userData.password?.trim();
-        const emailExists = users.some(user => user.email === userData.email);
+        const endpoint = isLogin ? '/api/login' : '/api/register';
+
+        let isFormEmpty = false
+        if (!isLogin) {
+        isFormEmpty = !userData.codename?.trim() || !userData.name?.trim() || !userData.email?.trim() || !userData.password?.trim();
+        } else {
+            isFormEmpty = !userData.email?.trim() || !userData.password?.trim();
+
+        }
 
         if (isFormEmpty) {
-            alert("Please Fill Out All The Fields!")
-        }   else if (emailExists) {
-            alert("This Email Is Already Used!")
+            showError("Please Fill Out All The Fields!")
         } else {
             const newUser = {
-                codeName: userData.codeName,
+                codename: userData.codename,
                 name: userData.name,
                 email: userData.email,
                 password: userData.password
-            }
-            handleRegistrateUser(newUser)
+            };
+            handleRegistrationPage(newUser, endpoint);
         }
 
     }
 
-    useEffect(()=> {
-        localStorage.setItem("users", JSON.stringify(users));
-    },[users]);
+  if (isLoggedIn) {
+    return (
+            <div>
+                <h1>Successfully Logged In!</h1>
+                {/* Add a logout button to test the flow */}
+                <button onClick={() => setIsLoggedIn(false)}>Logout</button>
+            </div>
+        );
+  } else {
+    return (
+        <div>
+            <h3>Register Your Account</h3>
+            <form onSubmit={submitUser}>
+                {!isLogin && (
+                    <div>
+                        <input style={{border: "1px solid black"}} name="codename" type="text" onChange={changeData} placeholder='Your codename...' value={userData.codename}></input><br />
+                        <input style={{border: "1px solid black"}} name="name" type="text" onChange={changeData} placeholder='Your Name...' value={userData.name}></input><br />
+                    </div>
+                )}
+                <input style={{border: "1px solid black"}} name="email" type="email" onChange={changeData} placeholder='Your Email...' value={userData.email} required></input><br />
+                <input style={{border: "1px solid black"}} name="password" type="password" onChange={changeData} placeholder='Your Password...' value={userData.password}></input><br />
 
-  return (
-    <div>
-        <h3>Register Your Account</h3>
-        <form onSubmit={submitUser}>
-            <input name="codeName" type="text" onChange={changeData} placeholder='Your Codename...' value={userData.codeName}></input><br />
-            <input name="name" type="text" onChange={changeData} placeholder='Your Name...' value={userData.name}></input><br />
-            <input name="email" type="email" onChange={changeData} placeholder='Your Email...' value={userData.email}></input><br />
-            <input name="password" type="password" onChange={changeData} placeholder='Your Password...' value={userData.password}></input><br />
-            <button type="submit">Register</button>
+            <button type="submit">{isLogin ? "Login" : "Register"}</button>
         </form>
+        {errorMessage && <p style={{color : "red"}}>{errorMessage}</p>}
 
-        <h2>Current Users:</h2>
-            <ul>
-                {users.map((user, index) => (
-                    <li key={index}>{user.codeName}<br />{user.name}<br />{user.email}<br />{user.password}<br /><br /><br /></li>
-                ))}
-            </ul>
-
-    </div>
-  )
+        <p>
+            {isLogin ? "No account? " : "Already have an account? "}
+            <button onClick={() => setIsLogin(!isLogin)} style={{ background: 'none', color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}>
+            {isLogin ? "Register here" : "Login here"}
+            </button>
+        </p>
+        </div>
+    );
+    };
 }

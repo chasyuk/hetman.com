@@ -53,4 +53,3 @@ def verify_email(token: str, db: Session = Depends(get_db)):
 @app.get("/me", response_model=UserResponse)
 def get_profile(current_user: User = Depends(get_current_user)):
     return current_user
-

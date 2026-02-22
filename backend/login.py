@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
+from jose import JWTError, jwt
+from utils import SECRET_KEY, ALGORITHM, hash_password, verify_password, create_access_token
 from database import engine, Base
 from models import User
 from schemas import UserCreate, UserLogin, UserResponse
-from utils import hash_password, verify_password, create_access_token
 from auth import get_db, get_current_user
 
 app = FastAPI()
@@ -28,24 +29,35 @@ def register(user: UserCreate,db: Session = Depends(get_db)):
 @app.post('/login')
 def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
-    if not db_user:
-        raise HTTPException(status_code=400, detail="Invalid credentials")
-    if not verify_password(user.password, db_user.hashed_password):
+    if not db_user or not verify_password(user.password, db_user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
     if not db_user.is_verified:
         raise HTTPException(status_code=403, detail="Email not verified")
     access_token = create_access_token({'sub': str(db_user.id)})
-    return {'access_token': access_token}
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
 
 @app.get("/verify/{token}")
 def verify_email(token: str, db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
 
-    from jose import jwt
-    from utils import SECRET_KEY, ALGORITHM
+        if user_id is None:
+            raise HTTPException(status_code=400, detail="Invalid token")
 
-    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    user_id = payload.get("sub")
-    user = db.query(User).filter(User.id == user_id).first()
+    except JWTError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid or expired token"
+        ) from exc
+
+    user = db.query(User).filter(User.id == int(user_id)).first()
+
+    if not user:
+        raise HTTPException(status_code=400, detail="User not found")
     user.is_verified = True
     db.commit()
     return {"message": "Email verified successfully"}

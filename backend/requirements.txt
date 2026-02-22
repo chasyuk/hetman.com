@@ -2,9 +2,11 @@ fastapi
 uvicorn
 pydantic
 email-validator
-passlib[bcrypt]
-bcrypt
+bcrypt==4.1.2
+passlib[bcrypt]==1.7.4
 python-dotenv
 python-multipart
 python-jose[cryptography]
 bcrypt==4.0.1
+sqlalchemy
+

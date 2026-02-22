@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from './AuthContext'
+import { ScrollReveal } from './ScrollReveal'
 
 export function Profile() {
     const { user, isLoggedIn, logout, setAvatar } = useAuth()
@@ -25,7 +26,7 @@ export function Profile() {
         return (
             <div className="min-h-[90vh] flex items-center justify-center px-4 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_#991b1b_0%,_#000_100%)] mix-blend-screen pointer-events-none"></div>
-                <div className="w-full max-w-md relative z-10">
+                <ScrollReveal scale={0.92} distance={0} duration={0.5} className="w-full max-w-md relative z-10">
                     <div className="border border-red-500/30 bg-black/60 backdrop-blur-xl p-10 text-center space-y-8 shadow-[0_0_50px_rgba(153,27,27,0.3)] tactical-border relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-[1px] bg-red-500/50 animate-[scanline_3s_linear_infinite]"></div>
 
@@ -50,7 +51,7 @@ export function Profile() {
                             <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-white opacity-20 group-hover:animate-glint"></div>
                         </Link>
                     </div>
-                </div>
+                </ScrollReveal>
             </div>
         )
     }
@@ -60,8 +61,9 @@ export function Profile() {
             {/* Background Grid & Scanline */}
             <div className="absolute inset-0 opacity-5 pointer-events-none bg-[linear-gradient(var(--color-muted)_1px,_transparent_1px),_linear-gradient(90deg,_var(--color-muted)_1px,_transparent_1px)] bg-[size:20px_20px]"></div>
             <div className="scanline-overlay"></div>
+            <div className="noise-overlay"></div>
 
-            <div className="w-full max-w-2xl relative z-10 gap-8 flex flex-col items-center">
+            <ScrollReveal direction="up" distance={30} duration={0.7} className="w-full max-w-2xl relative z-10 gap-8 flex flex-col items-center">
 
                 {/* Header Widget */}
                 <div className="tactical-border w-full border border-[#2a3520] bg-black/50 backdrop-blur-xl p-6 shadow-2xl flex items-center justify-between">
@@ -83,7 +85,7 @@ export function Profile() {
                 <div className="w-full grid grid-cols-1 md:grid-cols-[1fr_2.5fr] gap-6">
 
                     {/* Avatar Column */}
-                    <div className="tactical-border border border-[#2a3520] bg-black/50 backdrop-blur-xl p-6 flex flex-col items-center gap-6 shadow-2xl relative group">
+                    <ScrollReveal direction="right" distance={25} duration={0.6} delay={0.15} className="tactical-border border border-[#2a3520] bg-black/50 backdrop-blur-xl p-6 flex flex-col items-center gap-6 shadow-2xl relative group">
                         <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent pointer-events-none"></div>
 
                         {/* Image Frame */}
@@ -140,10 +142,10 @@ export function Profile() {
                                 {user.avatar ? 'UPDATE_VISUAL' : 'INIT_VISUAL'}
                             </button>
                         </div>
-                    </div>
+                    </ScrollReveal>
 
                     {/* Info Column */}
-                    <div className="tactical-border border border-[#2a3520] bg-black/50 backdrop-blur-xl p-6 sm:p-8 flex flex-col justify-between shadow-2xl relative">
+                    <ScrollReveal direction="left" distance={25} duration={0.6} delay={0.3} className="tactical-border border border-[#2a3520] bg-black/50 backdrop-blur-xl p-6 sm:p-8 flex flex-col justify-between shadow-2xl relative">
                         <div className="space-y-6 flex-grow">
 
                             <div className="group border-b border-[#2a3520] pb-2">
@@ -191,9 +193,9 @@ export function Profile() {
                                 <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-white opacity-20 group-hover:animate-[glint_0.5s_ease-in-out]"></div>
                             </button>
                         </div>
-                    </div>
+                    </ScrollReveal>
                 </div>
-            </div>
+            </ScrollReveal>
         </div>
     )
 }

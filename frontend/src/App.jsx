@@ -4,13 +4,15 @@ import { NavPanel } from './navigationPanel'
 import { Registration } from './Registration'
 import { Profile } from './Profile'
 import { AuthProvider } from './AuthContext'
+import { ScrollReveal } from './ScrollReveal'
 
 function Home() {
     return (
         <div className="min-h-screen relative">
-            {/* Global scanline effect */}
+            {/* Global effects */}
             <div className="scanline-overlay"></div>
             <div className="scanline-sweep"></div>
+            <div className="noise-overlay"></div>
 
             {/* ─── HERO SECTION ─── */}
             <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
@@ -26,7 +28,7 @@ function Home() {
                 {/* Radial intense glow behind title */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-amber-600/10 rounded-full blur-[100px] pointer-events-none" />
 
-                <div className="relative text-center space-y-10 max-w-4xl px-6 z-10">
+                <ScrollReveal duration={1.0} distance={50} delay={0.15} className="relative text-center space-y-10 max-w-4xl px-6 z-10">
                     {/* Classified badge */}
                     <div className="inline-block mb-2 animate-pulse">
                         <span className="text-xs font-bold uppercase tracking-[0.5em] text-amber-500/80 border border-amber-500/30 px-6 py-2 bg-amber-900/20 backdrop-blur-sm tactical-border">
@@ -72,7 +74,7 @@ function Home() {
                             Command Center
                         </a>
                     </div>
-                </div>
+                </ScrollReveal>
 
                 {/* Scroll indicator */}
                 <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3" style={{ animation: 'bounce 2s infinite' }}>
@@ -82,7 +84,7 @@ function Home() {
             </section>
 
             {/* ─── STATS BAR ─── */}
-            <section className="relative z-10 border-y border-[#2a3520] bg-black/40 backdrop-blur-xl">
+            <ScrollReveal direction="up" distance={25} duration={0.7} className="relative z-10 border-y border-[#2a3520] bg-black/40 backdrop-blur-xl">
                 <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-2 sm:grid-cols-4 gap-8 divide-x divide-[#2a3520]/60">
                     {[
                         { value: '360°', label: 'Firing Arc' },
@@ -98,20 +100,20 @@ function Home() {
                         </div>
                     ))}
                 </div>
-            </section>
+            </ScrollReveal>
 
             {/* ─── FEATURES SECTION ─── */}
             <section className="relative py-24 px-6 z-10 bg-gradient-to-b from-[#0a0c09] to-[#111610]">
                 <div className="max-w-6xl mx-auto space-y-16">
                     {/* Section header */}
-                    <div className="text-center space-y-4">
+                    <ScrollReveal distance={20} duration={0.6} className="text-center space-y-4">
                         <span className="inline-block px-4 py-1 border border-[#3a4a2a] text-[11px] font-mono-tactical tracking-[0.5em] text-amber-500/60 bg-[#141a10]/50 backdrop-blur-sm">
                             SYSTEMS_OVERVIEW
                         </span>
                         <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-widest text-[#e2e8f0]">
                             Core Capabilities
                         </h2>
-                    </div>
+                    </ScrollReveal>
 
                     {/* Feature cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
@@ -143,8 +145,8 @@ function Home() {
                                 title: 'Live Simulation',
                                 desc: 'Real-time trajectory visualization, instantaneous impact prediction, and area analysis.'
                             },
-                        ].map((feature) => (
-                            <div key={feature.title}
+                        ].map((feature, i) => (
+                            <ScrollReveal key={feature.title} delay={0.12 * i} distance={30} duration={0.6}
                                 className="relative group p-8 space-y-6 bg-black/40 backdrop-blur-md border border-[#2a3520] hover:border-amber-500/50 hover:bg-[#141a10]/80 transition-all duration-500 tactical-border">
 
                                 <div className="text-amber-500/60 group-hover:text-amber-400 group-hover:-translate-y-1 transition-all duration-300">
@@ -156,14 +158,14 @@ function Home() {
                                 <p className="text-sm font-mono-tactical text-[#8a9a6a] leading-relaxed tracking-wide group-hover:text-[#e2e8f0]/80 transition-colors">
                                     {feature.desc}
                                 </p>
-                            </div>
+                            </ScrollReveal>
                         ))}
                     </div>
                 </div>
             </section>
 
             {/* ─── BOTTOM CTA ─── */}
-            <section className="relative z-10 border-t border-[#2a3520] py-20 px-6 bg-[#0a0c09] overflow-hidden">
+            <ScrollReveal scale={0.97} duration={0.7} delay={0.05} className="relative z-10 border-t border-[#2a3520] py-20 px-6 bg-[#0a0c09] overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-t from-amber-900/10 to-transparent pointer-events-none"></div>
                 <div className="max-w-2xl mx-auto text-center space-y-8 relative z-10">
                     <div className="flex items-center justify-center gap-4">
@@ -184,7 +186,7 @@ function Home() {
                         Begin Mission <span className="text-lg leading-none">→</span>
                     </a>
                 </div>
-            </section>
+            </ScrollReveal>
         </div>
     )
 }
@@ -198,7 +200,7 @@ function Dashboard() {
             {/* Radar / Loading Ring Background */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-[#2a3520] rounded-full opacity-20 pointer-events-none" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-[#2a3520] rounded-full opacity-30 pointer-events-none" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-amber-500/20 rounded-full opacity-40 pointer-events-none" style={{ animation: 'spin 20s linear infinite' }}>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-amber-500/20 rounded-full opacity-40 pointer-events-none" style={{ animation: 'radar-sweep 12s linear infinite' }}>
                 <div className="w-1/2 h-full border-r-2 border-amber-500/40 opacity-50 blur-[2px]"></div>
             </div>
 

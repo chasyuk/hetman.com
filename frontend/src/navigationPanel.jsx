@@ -24,7 +24,7 @@ export function NavPanel() {
                             {/* Logo / Brand — military insignia style */}
                             <Link to="/" className="flex items-center gap-4 group">
                                 <div className="relative">
-                                    <div className="absolute inset-0 bg-amber-500/20 blur-md rounded-full group-hover:bg-amber-500/40 transition-colors"></div>
+                                    <div className="absolute inset-0 bg-amber-500/20 blur-md rounded-full group-hover:bg-amber-500/40 transition-colors" style={{ animation: 'pulse-glow 4s ease-in-out infinite' }}></div>
                                     <div className="relative h-12 w-12 border-2 border-amber-500/80 rotate-45 flex items-center justify-center bg-black/60 group-hover:border-amber-400 group-hover:-translate-y-0.5 transition-all duration-300">
                                         <div className="absolute inset-0 border border-amber-500/30 m-1"></div>
                                         <span className="-rotate-45 text-amber-500 font-black text-xl tracking-tighter group-hover:text-amber-400 transition-colors font-sans">H</span>

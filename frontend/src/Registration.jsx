@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import './App.css'
 import axios from 'axios'
 import { useAuth } from './AuthContext'
+import { ScrollReveal } from './ScrollReveal'
 
 export function Registration() {
 
@@ -114,7 +115,9 @@ export function Registration() {
             {/* Background Map Animation */}
             <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-screen bg-[radial-gradient(ellipse_at_center,_var(--color-bg-base)_0%,_#000_100%)]"></div>
 
-            <div className="w-full max-w-xl relative z-10">
+            <div className="noise-overlay"></div>
+
+            <ScrollReveal scale={0.96} distance={30} duration={0.7} className="w-full max-w-xl relative z-10">
 
                 <div className="tactical-border bg-black/60 backdrop-blur-xl p-8 sm:p-12 shadow-2xl border border-[#2a3520]">
 
@@ -131,8 +134,8 @@ export function Registration() {
                         <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-widest text-[#e2e8f0]" style={{ filter: 'drop-shadow(0 0 10px rgba(217,119,6,0.2))' }}>
                             {isLogin ? 'Identity Verify' : 'Operator Enlist'}
                         </h2>
-                        <p className="text-xs font-mono-tactical text-[#8a9a6a] tracking-widest">
-                            {isLogin ? '> ENTER SECURITY CREDENTIALS_' : '> INITIALISE OPERATOR PROFILE_'}
+                        <p className="text-xs font-mono-tactical text-[#8a9a6a] tracking-widest typing-cursor">
+                            {isLogin ? '> ENTER SECURITY CREDENTIALS' : '> INITIALISE OPERATOR PROFILE'}
                         </p>
                     </div>
 
@@ -263,7 +266,7 @@ export function Registration() {
                         </p>
                     </div>
                 </div>
-            </div>
+            </ScrollReveal>
         </div>
     )
 }

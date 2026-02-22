@@ -5,7 +5,11 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
+<<<<<<< HEAD
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+=======
+RUN npm install
+>>>>>>> 228d747 (add interface)
 
 # Copy source code
 COPY . .

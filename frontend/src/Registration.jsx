@@ -29,17 +29,24 @@ export function Registration() {
                     email: userData.email,
                     password: userData.password,
                 })
-                auth.login(res.data)
+                const accessToken = res.data.access_token
+
+                const meRes = await axios.get('/api/me', { headers: { Authorization: `Bearer ${accessToken}` } })
+                auth.login(meRes.data, accessToken)
                 navigate('/profile')
             } else {
-                await axios.post(endpoint, {
+                const res = await axios.post(endpoint, {
                     codename: userData.codename,
                     name: userData.name,
                     email: userData.email,
                     password: userData.password,
                 })
-                auth.login({ codename: userData.codename, name: userData.name, email: userData.email })
-                navigate('/profile')
+                const verifyToken = res.data.verification_token
+
+                await axios.get(`/api/verify/${verifyToken}`)
+
+                showError("SYS_SUCCESS: Identity verified successfully. Please Enlist (Login).")
+                setIsLogin(true)
             }
         } catch (error) {
             console.error("Request failed:", error)
@@ -211,13 +218,13 @@ export function Registration() {
                             </div>
                         </div>
 
-                        {/* Error message Terminal style */}
+                        {/* Error/Success message Terminal style */}
                         {errorMessage && (
-                            <div className="relative bg-red-950/40 border border-red-500/50 p-4 overflow-hidden group">
-                                <div className="absolute top-0 left-0 w-full h-[1px] bg-red-500/50 animate-[scanline_2s_linear_infinite]"></div>
-                                <div className="flex items-start gap-3 text-red-400 font-mono-tactical text-xs tracking-widest leading-relaxed">
+                            <div className={`relative ${errorMessage.startsWith("SYS_SUCCESS") ? "bg-amber-950/40 border-amber-500/50" : "bg-red-950/40 border-red-500/50"} p-4 overflow-hidden group`}>
+                                <div className={`absolute top-0 left-0 w-full h-[1px] ${errorMessage.startsWith("SYS_SUCCESS") ? "bg-amber-500/50" : "bg-red-500/50"} animate-[scanline_2s_linear_infinite]`}></div>
+                                <div className={`flex items-start gap-3 ${errorMessage.startsWith("SYS_SUCCESS") ? "text-amber-400" : "text-red-400"} font-mono-tactical text-xs tracking-widest leading-relaxed`}>
                                     <span className="animate-pulse">▶</span>
-                                    <span>{errorMessage}</span>
+                                    <span>{errorMessage.replace("SYS_SUCCESS: ", "")}</span>
                                 </div>
                             </div>
                         )}

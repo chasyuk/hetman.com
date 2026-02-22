@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Utility classes for complex tactical border drawing */
+.tactical-border {
+    position: relative;
+}
+
+.tactical-border::before,
 .tactical-border::after {
     content: '';
     position: absolute;
@@ -15,17 +21,9 @@
     border-top: 2px solid var(--color-primary);
     border-left: 2px solid var(--color-primary);
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-.infoInput {
-    border: 1px solid black;
-}
 .card {
   padding: 2em;
+}
 .tactical-border::after {
     bottom: -1px;
     right: -1px;
@@ -44,35 +42,6 @@
 /* Hexagon clip-path utility if needed later */
 .hex-clip {
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-}
-
-/* Film grain / noise overlay for military immersion */
-.noise-overlay {
-    position: fixed;
-    top: -50%;
-    left: -50%;
-    right: -50%;
-    bottom: -50%;
-    width: 200%;
-    height: 200%;
-    background: transparent url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E") repeat;
-    pointer-events: none;
-    z-index: 9997;
-    animation: noise-grain 0.3s steps(3) infinite;
-    opacity: 0.5;
-}
-
-/* Typing cursor effect for terminal-style text */
-.typing-cursor::after {
-    content: '_';
-    animation: typing-cursor 1s step-end infinite;
-    color: var(--color-primary);
-    font-weight: 400;
-}
-
-/* Glint animation utility */
-.animate-glint {
-    animation: glint 0.6s ease-in-out;
 }
 
 .glitch-text {

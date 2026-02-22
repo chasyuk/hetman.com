@@ -1,13 +1,8 @@
-<<<<<<< HEAD
-import { useState } from 'react'
-=======
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
->>>>>>> 228d747 (add interface)
 import './App.css'
 import axios from 'axios'
 import { useAuth } from './AuthContext'
-import { ScrollReveal } from './ScrollReveal'
 
 export function Registration() {
 
@@ -34,17 +29,24 @@ export function Registration() {
                     email: userData.email,
                     password: userData.password,
                 })
-                auth.login(res.data)
+                const accessToken = res.data.access_token
+
+                const meRes = await axios.get('/api/me', { headers: { Authorization: `Bearer ${accessToken}` } })
+                auth.login(meRes.data, accessToken)
                 navigate('/profile')
             } else {
-                await axios.post(endpoint, {
+                const res = await axios.post(endpoint, {
                     codename: userData.codename,
                     name: userData.name,
                     email: userData.email,
                     password: userData.password,
                 })
-                auth.login({ codename: userData.codename, name: userData.name, email: userData.email })
-                navigate('/profile')
+                const verifyToken = res.data.verification_token
+
+                await axios.get(`/api/verify/${verifyToken}`)
+
+                showError("SYS_SUCCESS: Identity verified successfully. Please Enlist (Login).")
+                setIsLogin(true)
             }
         } catch (error) {
             console.error("Request failed:", error)
@@ -115,9 +117,7 @@ export function Registration() {
             {/* Background Map Animation */}
             <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-screen bg-[radial-gradient(ellipse_at_center,_var(--color-bg-base)_0%,_#000_100%)]"></div>
 
-            <div className="noise-overlay"></div>
-
-            <ScrollReveal scale={0.96} distance={30} duration={0.7} className="w-full max-w-xl relative z-10">
+            <div className="w-full max-w-xl relative z-10">
 
                 <div className="tactical-border bg-black/60 backdrop-blur-xl p-8 sm:p-12 shadow-2xl border border-[#2a3520]">
 
@@ -134,8 +134,8 @@ export function Registration() {
                         <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-widest text-[#e2e8f0]" style={{ filter: 'drop-shadow(0 0 10px rgba(217,119,6,0.2))' }}>
                             {isLogin ? 'Identity Verify' : 'Operator Enlist'}
                         </h2>
-                        <p className="text-xs font-mono-tactical text-[#8a9a6a] tracking-widest typing-cursor">
-                            {isLogin ? '> ENTER SECURITY CREDENTIALS' : '> INITIALISE OPERATOR PROFILE'}
+                        <p className="text-xs font-mono-tactical text-[#8a9a6a] tracking-widest">
+                            {isLogin ? '> ENTER SECURITY CREDENTIALS_' : '> INITIALISE OPERATOR PROFILE_'}
                         </p>
                     </div>
 
@@ -218,13 +218,13 @@ export function Registration() {
                             </div>
                         </div>
 
-                        {/* Error message Terminal style */}
+                        {/* Error/Success message Terminal style */}
                         {errorMessage && (
-                            <div className="relative bg-red-950/40 border border-red-500/50 p-4 overflow-hidden group">
-                                <div className="absolute top-0 left-0 w-full h-[1px] bg-red-500/50 animate-[scanline_2s_linear_infinite]"></div>
-                                <div className="flex items-start gap-3 text-red-400 font-mono-tactical text-xs tracking-widest leading-relaxed">
+                            <div className={`relative ${errorMessage.startsWith("SYS_SUCCESS") ? "bg-amber-950/40 border-amber-500/50" : "bg-red-950/40 border-red-500/50"} p-4 overflow-hidden group`}>
+                                <div className={`absolute top-0 left-0 w-full h-[1px] ${errorMessage.startsWith("SYS_SUCCESS") ? "bg-amber-500/50" : "bg-red-500/50"} animate-[scanline_2s_linear_infinite]`}></div>
+                                <div className={`flex items-start gap-3 ${errorMessage.startsWith("SYS_SUCCESS") ? "text-amber-400" : "text-red-400"} font-mono-tactical text-xs tracking-widest leading-relaxed`}>
                                     <span className="animate-pulse">▶</span>
-                                    <span>{errorMessage}</span>
+                                    <span>{errorMessage.replace("SYS_SUCCESS: ", "")}</span>
                                 </div>
                             </div>
                         )}
@@ -266,7 +266,7 @@ export function Registration() {
                         </p>
                     </div>
                 </div>
-            </ScrollReveal>
+            </div>
         </div>
     )
 }

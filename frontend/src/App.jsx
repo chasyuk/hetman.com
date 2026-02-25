@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import { NavPanel } from './navigationPanel'
 import { Registration } from './Registration'
 import { Profile } from './Profile'
+import { FireControl } from './FireControl'
 import { AuthProvider } from './AuthContext'
 import { ScrollReveal } from './ScrollReveal'
 
@@ -68,10 +69,10 @@ function Home() {
                             <div className="absolute inset-0 h-full w-full group-hover:bg-white/20 transition-colors"></div>
                         </a>
                         <a
-                            href="/dashboard"
+                            href="/fire-control"
                             className="inline-flex items-center justify-center px-10 py-4 text-sm font-bold uppercase tracking-[0.2em] text-amber-500/80 border border-[#3a4a2a] hover:border-amber-500/60 hover:text-amber-400 transition-all duration-300 bg-[#141a10]/50 backdrop-blur-sm tactical-border"
                         >
-                            Command Center
+                            Fire Control
                         </a>
                     </div>
                 </ScrollReveal>
@@ -191,37 +192,7 @@ function Home() {
     )
 }
 
-function Dashboard() {
-    return (
-        <div className="min-h-[90vh] flex items-center justify-center relative overflow-hidden">
-            <div className="scanline-overlay"></div>
-            <div className="scanline-sweep"></div>
 
-            {/* Radar / Loading Ring Background */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-[#2a3520] rounded-full opacity-20 pointer-events-none" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-[#2a3520] rounded-full opacity-30 pointer-events-none" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-amber-500/20 rounded-full opacity-40 pointer-events-none" style={{ animation: 'radar-sweep 12s linear infinite' }}>
-                <div className="w-1/2 h-full border-r-2 border-amber-500/40 opacity-50 blur-[2px]"></div>
-            </div>
-
-            <div className="relative text-center space-y-6 z-10 p-12 bg-black/60 backdrop-blur-xl border border-[#2a3520] tactical-border shadow-2xl">
-                <span className="inline-block px-3 py-1 border border-red-500/50 bg-red-500/10 text-[11px] font-mono-tactical tracking-[0.5em] text-red-400 animate-pulse">
-                    RESTRICTED_ACCESS
-                </span>
-                <h1 className="text-5xl font-black uppercase tracking-widest text-[#e2e8f0]" style={{ filter: 'drop-shadow(0 0 15px rgba(255,255,255,0.1))' }}>
-                    Command Center
-                </h1>
-                <p className="text-sm font-mono-tactical text-amber-500/80 tracking-widest flex items-center justify-center gap-3">
-                    <span className="w-2 h-2 bg-amber-500 rounded-full" style={{ animation: 'blink 1.5s infinite' }}></span>
-                    ESTABLISHING CONNECTION... STANDBY
-                </p>
-                <div className="w-full h-1 bg-[#111610] mt-8 overflow-hidden">
-                    <div className="h-full bg-amber-500 w-1/3" style={{ animation: 'scanline 2s ease-in-out infinite alternate' }}></div>
-                </div>
-            </div>
-        </div>
-    )
-}
 
 function App() {
     return (
@@ -232,7 +203,7 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/registration" element={<Registration />} />
-                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/fire-control" element={<FireControl />} />
                         <Route path="/profile" element={<Profile />} />
                     </Routes>
                 </main>

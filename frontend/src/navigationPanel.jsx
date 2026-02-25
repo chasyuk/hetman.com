@@ -7,7 +7,7 @@ import clsx from 'clsx'
 const navigation = [
     { name: 'HQ', href: '/' },
     { name: 'Enlist', href: '/registration' },
-    { name: 'Command', href: '/dashboard' },
+    { name: 'Fire Control', href: '/fire-control' },
     { name: 'Profile', href: '/profile' },
 ]
 

@@ -74,7 +74,7 @@ export function NavPanel() {
                                     to="/registration"
                                     className="hidden sm:inline-flex relative items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-[0.15em] text-[#0a0c09] bg-amber-700 hover:bg-amber-600 transition-all duration-300 shadow-[0_0_15px_rgba(217,119,6,0.2)] hover:shadow-[0_0_25px_rgba(217,119,6,0.4)] group overflow-hidden"
                                 >
-                                    <span className="relative z-10 flex items-center gap-2">
+                                    <span className="relative z-10 flex items-center gap-2 text-orange-200">
                                         Deploy
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>

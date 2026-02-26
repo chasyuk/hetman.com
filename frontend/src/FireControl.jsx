@@ -1,19 +1,10 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, Polyline, Circle, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Polyline, Circle, useMapEvents, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import axios from 'axios'
 import 'leaflet/dist/leaflet.css'
 
-/* ═══════════════════════════════════════════════════════════════
-   CANNON DATABASE
-   ═══════════════════════════════════════════════════════════════ */
-/* CANNONS are fetched from the backend /api/weapons endpoint */
-
-/* ═══════════════════════════════════════════════════════════════
-   UNIT TYPE CONFIG & COLORS
-   ═══════════════════════════════════════════════════════════════ */
 const UNIT_TYPES = {
-    // ── ОСНОВНІ ──
     infantry: { label: 'Піхота', defaultRadius: 400, category: 'main' },
     battery: { label: 'Батарея (Арта)', defaultRadius: 0, category: 'main' },
     ksp: { label: 'КСП', defaultRadius: 5000, category: 'main' },
@@ -21,19 +12,16 @@ const UNIT_TYPES = {
     uav: { label: 'Підрозділ БПЛА', defaultRadius: 15000, category: 'main' },
     ew: { label: 'РЕБ', defaultRadius: 8000, category: 'main' },
 
-    // ── РОЗВІДКА (З фото) ──
     recon_patrol: { label: 'Розвідувальний дозор', defaultRadius: 0, category: 'recon' },
     recon_detachment: { label: 'Розвідувальний загін', defaultRadius: 0, category: 'recon' },
     recon_group: { label: 'Розвідувальна група', defaultRadius: 0, category: 'recon' },
     patrol_squad: { label: 'Дозорне відділення', defaultRadius: 0, category: 'recon' },
 
-    // ── ТЕХНІКА (З фото) ──
     tank: { label: 'Танк', defaultRadius: 0, category: 'vehicle' },
     bmp: { label: 'БМП', defaultRadius: 0, category: 'vehicle' },
     btr: { label: 'БТР', defaultRadius: 0, category: 'vehicle' },
     auto: { label: 'Автомобіль', defaultRadius: 0, category: 'vehicle' },
 
-    // ── ОЗБРОЄННЯ (З фото) ──
     mortar_gen: { label: 'Загальне позначення мінометів', defaultRadius: 0, category: 'weapon' },
     mortar_light: { label: 'Малого калібру (до 60 мм)', defaultRadius: 0, category: 'weapon' },
     mortar_med: { label: 'Середнього калібру (до 107мм)', defaultRadius: 0, category: 'weapon' },
@@ -60,11 +48,8 @@ const CATEGORIES = {
     weapon: 'Озброєння'
 }
 
-const COLORS = ['#3b82f6', '#22c55e', '#a855f7', '#f59e0b', '#ec4899', '#14b8a6', '#ef4444', '#000000']
+const COLORS = ['#4d9fff', '#00e676', '#bf5af2', '#ffca28', '#ff4081', '#00e5ff', '#ff5252', '#ff6d00']
 
-/* ═══════════════════════════════════════════════════════════════
-   LEAFLET NATO ICON FACTORY
-   ═══════════════════════════════════════════════════════════════ */
 function makeIcon(unit, isDisconnected) {
     const isEnemy = unit.faction === 'enemy'
     const strokeColor = isDisconnected ? '#9ca3af' : unit.color
@@ -162,9 +147,6 @@ function makeIcon(unit, isDisconnected) {
     })
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   TRAJECTORY ARC — Перпендикулярна випукла лінія вгору (на Північ)
-   ═══════════════════════════════════════════════════════════════ */
 function getTrajectoryArc(lat1, lng1, lat2, lng2) {
     const points = []
     const dLat = lat2 - lat1
@@ -173,7 +155,6 @@ function getTrajectoryArc(lat1, lng1, lat2, lng2) {
     const midLat = (lat1 + lat2) / 2
     const midLng = (lng1 + lng2) / 2
 
-    // Розраховуємо вектор нормалі (завжди вказує на північ)
     let nLat = dLng;
     let nLng = -dLat;
 
@@ -196,9 +177,6 @@ function getTrajectoryArc(lat1, lng1, lat2, lng2) {
     return points
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   MAP CLICK HANDLER
-   ═══════════════════════════════════════════════════════════════ */
 function MapClickHandler({ placementMode, placementFaction, placementColor, onPlace }) {
     useMapEvents({
         click: (e) => {
@@ -210,9 +188,14 @@ function MapClickHandler({ placementMode, placementFaction, placementColor, onPl
     return null
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   MAIN COMPONENT
-   ═══════════════════════════════════════════════════════════════ */
+function MapController({ mapRef }) {
+    const map = useMap()
+    useEffect(() => {
+        if (mapRef) mapRef.current = map
+    }, [map, mapRef])
+    return null
+}
+
 export function FireControl() {
     const [cannons, setCannons] = useState([])
     const [units, setUnits] = useState([])
@@ -232,8 +215,19 @@ export function FireControl() {
     const [explosion, setExplosion] = useState(null)
 
     const idCounter = useRef(1)
+    const mapRef = useRef(null)
 
-    // Fetch weapons from the database on mount
+    const [gotoLat, setGotoLat] = useState('')
+    const [gotoLng, setGotoLng] = useState('')
+
+    const handleGoto = () => {
+        const lat = parseFloat(gotoLat)
+        const lng = parseFloat(gotoLng)
+        if (!isNaN(lat) && !isNaN(lng) && mapRef.current) {
+            mapRef.current.flyTo([lat, lng], 13, { duration: 1.5 })
+        }
+    }
+
     useEffect(() => {
         axios.get('/api/weapons')
             .then(res => setCannons(res.data))
@@ -296,11 +290,9 @@ export function FireControl() {
         }
     }
 
-    /* ── ФУНКЦІЯ ПОСТРІЛУ ── */
     const handleFire = async () => {
         if (!selectedUnit || selectedUnit.type !== 'battery') return
 
-        // 1. ПЕРЕВІРКА: ЧИ ГАРМАТА В АВТОНОМНОМУ РЕЖИМІ (відірвана від КСП)
         let isDisconnected = false;
         if (selectedUnit.faction === 'friendly' && !selectedUnit.linkedKspId) {
             isDisconnected = true;
@@ -319,7 +311,6 @@ export function FireControl() {
             return
         }
 
-        // 2. ПЕРЕВІРКА ЦІЛІ
         const target = units.find((u) => u.id === targetId)
         if (!target) {
             setError('Оберіть ціль для пострілу!')
@@ -348,8 +339,6 @@ export function FireControl() {
             } else {
                 setResult(res.data)
                 setTrajectory(getTrajectoryArc(selectedUnit.lat, selectedUnit.lng, target.lat, target.lng))
-
-                // Відображаємо вибух і ховаємо через 3 секунди
                 setExplosion({ lat: target.lat, lng: target.lng })
                 setTimeout(() => setExplosion(null), 3000)
             }
@@ -366,63 +355,53 @@ export function FireControl() {
     return (
         <div className="fc-root">
 
-            {/* ═══ ЛІВА ПАНЕЛЬ — Розміщення ═══ */}
+            {/* ═══ LEFT PANEL — Deployment ═══ */}
             <div className="fc-panel fc-panel-left">
-                <h3 style={{ marginTop: 0, borderBottom: '1px solid #333', paddingBottom: '10px' }}>Розгортання військ</h3>
+                <h3 className="fc-panel-title">Розгортання військ</h3>
 
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                <div className="fc-faction-row" style={{ marginTop: '14px' }}>
                     <button
                         onClick={() => setPlacementFaction('friendly')}
-                        style={{ flex: 1, padding: '8px', background: placementFaction === 'friendly' ? '#3b82f6' : '#333', color: '#fff', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
+                        className={`fc-faction-btn ${placementFaction === 'friendly' ? 'fc-friendly-active' : ''}`}
                     >Наші</button>
                     <button
                         onClick={() => setPlacementFaction('enemy')}
-                        style={{ flex: 1, padding: '8px', background: placementFaction === 'enemy' ? '#ef4444' : '#333', color: '#fff', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
+                        className={`fc-faction-btn ${placementFaction === 'enemy' ? 'fc-enemy-active' : ''}`}
                     >Ворог</button>
                 </div>
 
                 {placementFaction === 'friendly' && (
-                    <div style={{ display: 'flex', gap: '5px', marginBottom: '15px', flexWrap: 'wrap' }}>
+                    <div className="fc-color-row">
                         {COLORS.map(c => (
                             <div
                                 key={c}
                                 onClick={() => setPlacementColor(c)}
-                                style={{ width: '24px', height: '24px', background: c, cursor: 'pointer', borderRadius: '50%', border: placementColor === c ? '2px solid white' : '2px solid transparent' }}
+                                className={`fc-color-swatch ${placementColor === c ? 'active' : ''}`}
+                                style={{ background: c }}
                             />
                         ))}
                     </div>
                 )}
 
                 {placementMode && (
-                    <div style={{ marginBottom: '15px', padding: '10px', background: '#3b82f644', border: '1px solid #3b82f6', borderRadius: '4px', fontSize: '13px' }}>
-                        ▶ Ставимо: <strong>{UNIT_TYPES[placementMode].label}</strong>
-                        <button onClick={() => setPlacementMode(null)} style={{ float: 'right', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}>✕</button>
+                    <div className="fc-placement-banner">
+                        <span>▶ Ставимо: <strong>{UNIT_TYPES[placementMode].label}</strong></span>
+                        <button onClick={() => setPlacementMode(null)} className="fc-placement-close">✕</button>
                     </div>
                 )}
 
-                {/* Групування кнопок по категоріям */}
                 {Object.entries(CATEGORIES).map(([catKey, catLabel]) => (
-                    <div key={catKey} style={{ marginBottom: '15px' }}>
-                        <h4 style={{ color: '#aaa', fontSize: '12px', borderBottom: '1px solid #444', paddingBottom: '4px', marginBottom: '8px', marginTop: 0 }}>
-                            {catLabel}
-                        </h4>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div key={catKey} className="fc-cat-group">
+                        <h4 className="fc-cat-header">{catLabel}</h4>
+                        <div className="fc-cat-list">
                             {Object.entries(UNIT_TYPES)
                                 .filter(([_, cfg]) => cfg.category === catKey)
                                 .map(([key, cfg]) => (
                                     <button
                                         key={key}
                                         onClick={() => setPlacementMode(key)}
-                                        style={{
-                                            padding: '6px 10px',
-                                            textAlign: 'left',
-                                            fontSize: '13px',
-                                            background: placementMode === key ? '#444' : '#2a2a2a',
-                                            color: '#fff',
-                                            border: `1px solid ${placementMode === key ? placementColor : '#444'}`,
-                                            borderRadius: '3px',
-                                            cursor: 'pointer'
-                                        }}
+                                        className={`fc-unit-btn ${placementMode === key ? 'active' : ''}`}
+                                        style={placementMode === key ? { borderColor: placementColor } : undefined}
                                     >
                                         {cfg.label}
                                     </button>
@@ -431,17 +410,49 @@ export function FireControl() {
                     </div>
                 ))}
 
-                <hr style={{ borderColor: '#444', margin: '20px 0' }} />
+                <div className="fc-divider" />
 
-                <button
-                    onClick={clearAll}
-                    style={{ width: '100%', padding: '10px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                >
+                <button onClick={clearAll} className="fc-clear-btn">
                     Стерти всі одиниці
                 </button>
+
+                <div className="fc-divider" />
+
+                <div className="fc-cat-group">
+                    <h4 className="fc-cat-header">Навігація</h4>
+                    <div className="fc-coord-box">
+                        <div className="fc-coord-row">
+                            <span className="fc-coord-label">LAT</span>
+                            <input
+                                type="number"
+                                step="0.00001"
+                                value={gotoLat}
+                                onChange={(e) => setGotoLat(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleGoto()}
+                                className="fc-coord-input"
+                                placeholder="49.0"
+                            />
+                        </div>
+                        <div className="fc-coord-row">
+                            <span className="fc-coord-label">LNG</span>
+                            <input
+                                type="number"
+                                step="0.00001"
+                                value={gotoLng}
+                                onChange={(e) => setGotoLng(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleGoto()}
+                                className="fc-coord-input"
+                                placeholder="31.0"
+                            />
+                        </div>
+                        <button onClick={handleGoto} className="fc-unit-btn" style={{ width: '100%', marginTop: '8px', textAlign: 'center' }}>
+                            Перейти ▶
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            {/* ═══ КАПТА ═══ */}
+            {/* ═══ MAP ═══ */}
             <div className="fc-map-wrap">
                 <MapContainer center={[49.0, 31.0]} zoom={6} className="fc-map" zoomControl={false}>
                     <TileLayer
@@ -449,6 +460,7 @@ export function FireControl() {
                         url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
                         maxZoom={17}
                     />
+                    <MapController mapRef={mapRef} />
                     <MapClickHandler
                         placementMode={placementMode}
                         placementFaction={placementFaction}
@@ -459,7 +471,6 @@ export function FireControl() {
                     {units.map((u) => {
                         let isDisconnected = false;
 
-                        // Відключаємо логіку КСП для нових сутностей (вони завжди кольорові)
                         if (u.faction === 'friendly' && UNIT_TYPES[u.type].category === 'main' && u.type !== 'ksp') {
                             if (!u.linkedKspId) {
                                 isDisconnected = true;
@@ -480,7 +491,6 @@ export function FireControl() {
                             currentRadius = cannons[cannonModelIdx].max_range_m;
                         }
 
-                        // Малюємо радіус тільки для "основних" сутностей
                         const shouldDrawRadius = isSelected && currentRadius > 0 && UNIT_TYPES[u.type].category === 'main';
 
                         return (
@@ -528,75 +538,73 @@ export function FireControl() {
                 </MapContainer>
             </div>
 
-            {/* ═══ ПРАВА ПАНЕЛЬ — Інфо ═══ */}
+            {/* ═══ RIGHT PANEL — Unit Info ═══ */}
             <div className="fc-panel fc-panel-right">
-                <h3 style={{ marginTop: 0, borderBottom: '1px solid #333', paddingBottom: '10px' }}>Управління одиницею</h3>
+                <h3 className="fc-panel-title">Управління одиницею</h3>
 
                 {!selectedUnit ? (
-                    <p style={{ color: '#aaa', fontSize: '14px' }}>Оберіть одиницю на мапі для взаємодії.</p>
+                    <p className="fc-info-text" style={{ marginTop: '14px' }}>Оберіть одиницю на мапі для взаємодії.</p>
                 ) : (
-                    <div>
-                        <div style={{ padding: '8px 10px', background: selectedUnit.color + '33', borderLeft: `4px solid ${selectedUnit.color}`, marginBottom: '15px', borderRadius: '0 4px 4px 0' }}>
-                            <strong>{selectedUnit.faction === 'enemy' ? 'ВОРОГ: ' : ''}{UNIT_TYPES[selectedUnit.type].label}</strong>
+                    <div style={{ marginTop: '14px' }}>
+                        <div className="fc-selected-badge" style={{ borderLeftColor: selectedUnit.color, background: `${selectedUnit.color}20` }}>
+                            {selectedUnit.faction === 'enemy' ? 'ВОРОГ: ' : ''}{UNIT_TYPES[selectedUnit.type].label}
                         </div>
 
-                        <div style={{ marginBottom: '15px', fontSize: '14px', background: '#2a2a2a', padding: '10px', borderRadius: '4px' }}>
-                            <div style={{ marginBottom: '8px' }}>
-                                <span style={{ color: '#aaa', display: 'inline-block', width: '45px' }}>Lat:</span>
+                        <div className="fc-coord-box">
+                            <div className="fc-coord-row">
+                                <span className="fc-coord-label">LAT</span>
                                 <input
                                     type="number"
                                     step="0.00001"
                                     value={selectedUnit.lat}
                                     onChange={(e) => updateSelectedUnit('lat', parseFloat(e.target.value) || 0)}
-                                    style={{ width: '130px', padding: '6px', background: '#333', border: '1px solid #555', color: '#fff', borderRadius: '4px', boxSizing: 'border-box' }}
+                                    className="fc-coord-input"
                                 />
                             </div>
-                            <div>
-                                <span style={{ color: '#aaa', display: 'inline-block', width: '45px' }}>Lng:</span>
+                            <div className="fc-coord-row">
+                                <span className="fc-coord-label">LNG</span>
                                 <input
                                     type="number"
                                     step="0.00001"
                                     value={selectedUnit.lng}
                                     onChange={(e) => updateSelectedUnit('lng', parseFloat(e.target.value) || 0)}
-                                    style={{ width: '130px', padding: '6px', background: '#333', border: '1px solid #555', color: '#fff', borderRadius: '4px', boxSizing: 'border-box' }}
+                                    className="fc-coord-input"
                                 />
                             </div>
                         </div>
 
-                        {/* Назва / Нотатка (для всіх) */}
-                        <div style={{ marginBottom: '15px' }}>
-                            <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Назва / Позивний / Нотатка:</label>
+                        <div className="fc-field-group">
+                            <label className="fc-field-label">Назва / Позивний / Нотатка</label>
                             <input
                                 type="text"
                                 value={selectedUnit.customName || ''}
                                 onChange={(e) => updateSelectedUnit('customName', e.target.value)}
-                                style={{ width: '100%', padding: '8px', background: '#333', border: '1px solid #555', color: '#fff', boxSizing: 'border-box', borderRadius: '4px' }}
+                                className="fc-text-input"
                                 placeholder="Напр: 1мБ 13 ОМБр"
                             />
                         </div>
 
-                        {/* Радіус та КСП показуємо ТІЛЬКИ для основної категорії */}
                         {UNIT_TYPES[selectedUnit.type].category === 'main' && (
                             <>
                                 {selectedUnit.type !== 'battery' && (
-                                    <div style={{ marginBottom: '15px' }}>
-                                        <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Радіус дії / зв'язку (м):</label>
+                                    <div className="fc-field-group">
+                                        <label className="fc-field-label">Радіус дії / зв'язку (м)</label>
                                         <input
                                             type="number"
                                             value={selectedUnit.radius || 0}
                                             onChange={(e) => updateSelectedUnit('radius', parseInt(e.target.value) || 0)}
-                                            style={{ width: '100%', padding: '8px', background: '#333', border: '1px solid #555', color: '#fff', boxSizing: 'border-box', borderRadius: '4px' }}
+                                            className="fc-text-input"
                                         />
                                     </div>
                                 )}
 
                                 {selectedUnit.faction === 'friendly' && selectedUnit.type !== 'ksp' && (
-                                    <div style={{ marginBottom: '15px' }}>
-                                        <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Підпорядкування (КСП):</label>
+                                    <div className="fc-field-group">
+                                        <label className="fc-field-label">Підпорядкування (КСП)</label>
                                         <select
                                             value={selectedUnit.linkedKspId || ''}
                                             onChange={(e) => updateSelectedUnit('linkedKspId', parseInt(e.target.value) || null)}
-                                            style={{ width: '100%', padding: '8px', background: '#333', border: '1px solid #555', color: '#fff', boxSizing: 'border-box', borderRadius: '4px' }}
+                                            className="fc-select"
                                         >
                                             <option value="">-- Без зв'язку (Автономно) --</option>
                                             {units.filter(u => u.type === 'ksp' && u.faction === 'friendly').map(ksp => (
@@ -610,33 +618,32 @@ export function FireControl() {
                             </>
                         )}
 
-                        <hr style={{ borderColor: '#444', margin: '20px 0' }} />
+                        <div className="fc-divider" />
 
-                        {/* ── ЛОГІКА ПОСТРІЛУ ДЛЯ БАТАРЕЇ ── */}
                         {selectedUnit.type === 'battery' && (
-                            <div style={{ background: '#2a2a2a', padding: '10px', borderRadius: '4px', marginBottom: '15px' }}>
-                                <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Гармата:</label>
+                            <div className="fc-battery-box">
+                                <label className="fc-field-label">Гармата</label>
                                 <select
                                     value={cannonModelIdx}
                                     onChange={(e) => setCannonModelIdx(parseInt(e.target.value))}
-                                    style={{ width: '100%', padding: '8px', background: '#333', border: '1px solid #555', color: '#fff', marginBottom: '10px', boxSizing: 'border-box', borderRadius: '4px' }}
+                                    className="fc-select"
                                 >
                                     {cannons.map((c, i) => (
                                         <option key={i} value={i}>{c.name}</option>
                                     ))}
                                 </select>
 
-                                <div style={{ fontSize: '12px', color: '#bbb', marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <div>Швидкість: {currentCannon?.muzzle_velocity_ms ?? '—'} м/с</div>
-                                    <div>Дальність: {currentCannon?.max_range_m ?? '—'} м</div>
+                                <div className="fc-battery-stats">
+                                    <div>Швидкість: <span>{currentCannon?.muzzle_velocity_ms ?? '—'}</span> м/с</div>
+                                    <div>Дальність: <span>{currentCannon?.max_range_m ?? '—'}</span> м</div>
                                 </div>
 
-                                <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Ціль (Ворог):</label>
+                                <label className="fc-field-label">Ціль (Ворог)</label>
                                 {enemies.length > 0 ? (
                                     <select
                                         value={targetId || ''}
                                         onChange={(e) => setTargetId(parseInt(e.target.value))}
-                                        style={{ width: '100%', padding: '8px', background: '#333', border: '1px solid #555', color: '#fff', marginBottom: '15px', boxSizing: 'border-box', borderRadius: '4px' }}
+                                        className="fc-select"
                                     >
                                         <option value="" disabled>-- Оберіть ціль --</option>
                                         {enemies.map((t) => (
@@ -646,37 +653,46 @@ export function FireControl() {
                                         ))}
                                     </select>
                                 ) : (
-                                    <p style={{ color: '#ef4444', fontSize: '12px' }}>Спочатку розгорніть ворога на мапі!</p>
+                                    <p className="fc-no-targets">Спочатку розгорніть ворога на мапі!</p>
                                 )}
 
                                 <button
                                     onClick={handleFire}
                                     disabled={loading || enemies.length === 0 || !targetId}
-                                    style={{ width: '100%', padding: '12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', transition: '0.2s' }}
+                                    className="fc-fire-btn"
                                 >
-                                    {loading ? 'Розрахунок...' : 'ВОГОНЬ'}
+                                    {loading ? (
+                                        <><div className="fc-spinner" /> Розрахунок...</>
+                                    ) : 'ВОГОНЬ'}
                                 </button>
 
                                 {result && (
-                                    <div style={{ marginTop: '15px', padding: '10px', background: '#22c55e22', border: '1px solid #22c55e', borderRadius: '4px', color: '#4ade80', fontSize: '14px' }}>
-                                        <strong style={{ display: 'block', marginBottom: '8px' }}>✅ ВЛУЧАННЯ МОЖЛИВЕ</strong>
-                                        <div>Відстань: {result.distance} м</div>
-                                        <div>Азимут: {result.azimuth}°</div>
-                                        <div>Кут підйому: {result.elevation}°</div>
+                                    <div className="fc-result fc-result-success">
+                                        <span className="fc-result-badge">✅ ВЛУЧАННЯ МОЖЛИВЕ</span>
+                                        <div className="fc-stat-row">
+                                            <span className="fc-stat-label">Відстань</span>
+                                            <span className="fc-stat-value">{result.distance} м</span>
+                                        </div>
+                                        <div className="fc-stat-row">
+                                            <span className="fc-stat-label">Азимут</span>
+                                            <span className="fc-stat-value">{result.azimuth}°</span>
+                                        </div>
+                                        <div className="fc-stat-row">
+                                            <span className="fc-stat-label">Кут підйому</span>
+                                            <span className="fc-stat-value">{result.elevation}°</span>
+                                        </div>
                                     </div>
                                 )}
                                 {error && (
-                                    <div style={{ marginTop: '15px', padding: '10px', background: '#ef444422', border: '1px solid #ef4444', borderRadius: '4px', color: '#ff8888', fontSize: '14px' }}>
-                                        <strong>ПОМИЛКА:</strong> {error}
+                                    <div className="fc-result fc-result-error">
+                                        <span className="fc-result-badge">ПОМИЛКА</span>
+                                        <p>{error}</p>
                                     </div>
                                 )}
                             </div>
                         )}
 
-                        <button
-                            onClick={() => deleteUnit(selectedUnit.id)}
-                            style={{ width: '100%', padding: '10px', background: 'transparent', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '4px', cursor: 'pointer' }}
-                        >
+                        <button onClick={() => deleteUnit(selectedUnit.id)} className="fc-delete-btn">
                             Прибрати одиницю
                         </button>
                     </div>

@@ -49,6 +49,8 @@ def seed_weapons():
     finally:
         db.close()
 
+
+@app.get("/weapons")
 def list_weapons(db: Session = Depends(get_db)):
     weapons = db.query(Weapon).all()
     return [
@@ -62,6 +64,8 @@ def list_weapons(db: Session = Depends(get_db)):
         for w in weapons
     ]
 
+
+class ShotRequest(BaseModel):
     cannon_lat: float
     cannon_lng: float
     target_lat: float
@@ -87,6 +91,9 @@ def calculate_shot(data: ShotRequest):
     cannon_coords = (data.cannon_lat, data.cannon_lng)
     target_coords = (data.target_lat, data.target_lng)
 
+    distance_meters = geodesic(cannon_coords, target_coords).meters
+
+    if distance_meters > data.max_range:
         return {
             "status": "error",
             "message": (
@@ -96,9 +103,11 @@ def calculate_shot(data: ShotRequest):
             ),
         }
 
+    azimuth = calculate_bearing(
         cannon_coords[0], cannon_coords[1],
         target_coords[0], target_coords[1],
     )
+
     g = 9.81
     val = (distance_meters * g) / (data.velocity ** 2)
 
@@ -117,6 +126,8 @@ def calculate_shot(data: ShotRequest):
         "elevation": round(elevation_angle, 2),
     }
 
+
+@app.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:

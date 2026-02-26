@@ -171,7 +171,7 @@ export function Registration() {
                                             name="name"
                                             type="text"
                                             onChange={changeData}
-                                            placeholder="John Doe..."
+                                            placeholder="Antonenko Ivan..."
                                             value={userData.name}
                                             className="w-full px-4 py-3 bg-[#0a0c09]/80 border-b-2 border-[#2a3520] text-white font-mono-tactical text-sm tracking-widest placeholder-[#4a5a3a] focus:border-amber-500 focus:outline-none focus:bg-[#141a10] transition-all duration-300"
                                         />
@@ -191,7 +191,7 @@ export function Registration() {
                                     name="email"
                                     type="email"
                                     onChange={changeData}
-                                    placeholder="operator@command.mil..."
+                                    placeholder="operator@ucu.edu.ua..."
                                     value={userData.email}
                                     required
                                     className="w-full px-4 py-3 bg-[#0a0c09]/80 border-b-2 border-[#2a3520] text-white font-mono-tactical text-sm tracking-widest placeholder-[#4a5a3a] focus:border-amber-500 focus:outline-none focus:bg-[#141a10] transition-all duration-300"

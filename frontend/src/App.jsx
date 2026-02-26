@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import { Routes, Route } from 'react-router-dom'
 import { NavPanel } from './navigationPanel'
@@ -6,6 +7,98 @@ import { Profile } from './Profile'
 import { FireControl } from './FireControl'
 import { AuthProvider } from './AuthContext'
 import { ScrollReveal } from './ScrollReveal'
+import { ParticleField } from './ParticleField'
+
+/* ── Animated Counter Hook ── */
+function useCountUp(end, duration = 2000, startOnMount = false) {
+    const [value, setValue] = useState(0)
+    const [started, setStarted] = useState(startOnMount)
+
+    const trigger = () => setStarted(true)
+
+    useEffect(() => {
+        if (!started) return
+        let startTime = null
+        let animId
+
+        const step = (ts) => {
+            if (!startTime) startTime = ts
+            const progress = Math.min((ts - startTime) / duration, 1)
+            const eased = 1 - Math.pow(1 - progress, 3) // ease-out cubic
+            setValue(Math.round(eased * end))
+            if (progress < 1) animId = requestAnimationFrame(step)
+        }
+
+        animId = requestAnimationFrame(step)
+        return () => cancelAnimationFrame(animId)
+    }, [started, end, duration])
+
+    return [value, trigger]
+}
+
+/* ── Animated Stat Component ── */
+function AnimatedStat({ value, suffix = '', label }) {
+    const numericPart = parseInt(value) || 0
+    const textPart = value.toString().replace(/[0-9]/g, '')
+    const [count, trigger] = useCountUp(numericPart, 1800)
+    const ref = useRef(null)
+
+    useEffect(() => {
+        const el = ref.current
+        if (!el) return
+        const observer = new IntersectionObserver(
+            ([entry]) => { if (entry.isIntersecting) { trigger(); observer.unobserve(el) } },
+            { threshold: 0.3 }
+        )
+        observer.observe(el)
+        return () => observer.unobserve(el)
+    }, [])
+
+    const displayValue = numericPart > 0 ? `${count}${textPart}` : value
+
+    return (
+        <div ref={ref} className="text-center space-y-2 group">
+            <div className="text-3xl sm:text-4xl font-black text-gradient-gold tracking-widest font-mono-tactical group-hover:scale-105 transition-transform duration-300">
+                {displayValue}
+            </div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.4em] text-[#6b7a55] group-hover:text-[#8a9a6a] transition-colors">{label}</div>
+        </div>
+    )
+}
+
+/* ── Radar Reticle SVG ── */
+function RadarReticle() {
+    return (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0" style={{ width: '500px', height: '500px', opacity: 0.08 }}>
+            {/* Outer ring — slow rotate */}
+            <svg viewBox="0 0 200 200" className="w-full h-full" style={{ animation: 'rotate-slow 30s linear infinite' }}>
+                <circle cx="100" cy="100" r="95" fill="none" stroke="#d97706" strokeWidth="0.5" strokeDasharray="4 4" />
+                <circle cx="100" cy="100" r="70" fill="none" stroke="#d97706" strokeWidth="0.3" />
+                <circle cx="100" cy="100" r="45" fill="none" stroke="#d97706" strokeWidth="0.3" strokeDasharray="2 6" />
+                <circle cx="100" cy="100" r="20" fill="none" stroke="#d97706" strokeWidth="0.3" />
+                {/* crosshairs */}
+                <line x1="5" y1="100" x2="195" y2="100" stroke="#d97706" strokeWidth="0.3" />
+                <line x1="100" y1="5" x2="100" y2="195" stroke="#d97706" strokeWidth="0.3" />
+                {/* diagonal lines */}
+                <line x1="30" y1="30" x2="170" y2="170" stroke="#d97706" strokeWidth="0.15" />
+                <line x1="170" y1="30" x2="30" y2="170" stroke="#d97706" strokeWidth="0.15" />
+                {/* tick marks */}
+                {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(deg => {
+                    const rad = (deg * Math.PI) / 180
+                    const x1 = 100 + 88 * Math.cos(rad)
+                    const y1 = 100 + 88 * Math.sin(rad)
+                    const x2 = 100 + 95 * Math.cos(rad)
+                    const y2 = 100 + 95 * Math.sin(rad)
+                    return <line key={deg} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#d97706" strokeWidth="0.5" />
+                })}
+            </svg>
+            {/* Inner sweep — reverse rotate */}
+            <svg viewBox="0 0 200 200" className="absolute inset-0 w-full h-full" style={{ animation: 'rotate-slow-reverse 20s linear infinite' }}>
+                <path d="M100,100 L100,5 A95,95 0 0,1 167,33 Z" fill="rgba(217,119,6,0.08)" />
+            </svg>
+        </div>
+    )
+}
 
 function Home() {
     return (
@@ -17,6 +110,9 @@ function Home() {
 
             {/* ─── HERO SECTION ─── */}
             <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+                {/* Particle background */}
+                <ParticleField particleCount={70} />
+
                 {/* Animated grid background */}
                 <div className="absolute inset-0 opacity-10"
                     style={{
@@ -29,18 +125,21 @@ function Home() {
                 {/* Radial intense glow behind title */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-amber-600/10 rounded-full blur-[100px] pointer-events-none" />
 
+                {/* Radar reticle */}
+                <RadarReticle />
+
                 <ScrollReveal duration={1.0} distance={50} delay={0.15} className="relative text-center space-y-10 max-w-4xl px-6 z-10">
                     {/* Classified badge */}
-                    <div className="inline-block mb-2 animate-pulse">
+                    <div className="inline-block mb-2" style={{ animation: 'float 4s ease-in-out infinite' }}>
                         <span className="text-xs font-bold uppercase tracking-[0.5em] text-amber-500/80 border border-amber-500/30 px-6 py-2 bg-amber-900/20 backdrop-blur-sm tactical-border">
                             ◆ Top Secret // Classified ◆
                         </span>
                     </div>
 
-                    {/* Title with glitch effect */}
+                    {/* Title with shimmer gradient */}
                     <div className="relative inline-block">
-                        <h1 className="text-7xl sm:text-8xl md:text-9xl font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-amber-300 to-amber-600"
-                            style={{ filter: 'drop-shadow(0 0 20px rgba(217,119,6,0.3))' }}
+                        <h1 className="text-7xl sm:text-8xl md:text-9xl font-black uppercase tracking-widest text-gradient-gold"
+                            style={{ filter: 'drop-shadow(0 0 30px rgba(217,119,6,0.25))' }}
                             data-text="HETMAN">
                             HETMAN
                         </h1>
@@ -78,7 +177,7 @@ function Home() {
                 </ScrollReveal>
 
                 {/* Scroll indicator */}
-                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3" style={{ animation: 'bounce 2s infinite' }}>
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3" style={{ animation: 'float 3s ease-in-out infinite' }}>
                     <span className="text-[10px] font-mono-tactical tracking-[0.4em] text-[#4a5a3a]">SYS.SCROLL</span>
                     <div className="w-px h-8 bg-gradient-to-b from-amber-500/50 to-transparent"></div>
                 </div>
@@ -87,19 +186,10 @@ function Home() {
             {/* ─── STATS BAR ─── */}
             <ScrollReveal direction="up" distance={25} duration={0.7} className="relative z-10 border-y border-[#2a3520] bg-black/40 backdrop-blur-xl">
                 <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-2 sm:grid-cols-4 gap-8 divide-x divide-[#2a3520]/60">
-                    {[
-                        { value: '360°', label: 'Firing Arc' },
-                        { value: '50km', label: 'Max Range' },
-                        { value: 'Real', label: 'Terrain Data' },
-                        { value: 'Live', label: 'Simulation' },
-                    ].map((stat) => (
-                        <div key={stat.label} className="text-center space-y-2 group">
-                            <div className="text-3xl sm:text-4xl font-black text-amber-500/90 tracking-widest font-mono-tactical group-hover:text-amber-400 transition-colors" style={{ textShadow: '0 0 15px rgba(217,119,6,0.2)' }}>
-                                {stat.value}
-                            </div>
-                            <div className="text-[11px] font-bold uppercase tracking-[0.4em] text-[#6b7a55] group-hover:text-[#8a9a6a] transition-colors">{stat.label}</div>
-                        </div>
-                    ))}
+                    <AnimatedStat value="360°" label="Firing Arc" />
+                    <AnimatedStat value="50km" label="Max Range" />
+                    <AnimatedStat value="Real" label="Terrain Data" />
+                    <AnimatedStat value="Live" label="Simulation" />
                 </div>
             </ScrollReveal>
 

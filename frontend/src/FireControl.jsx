@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Polyline, Circle, useMapEvents, useMap
 import L from 'leaflet'
 import axios from 'axios'
 import 'leaflet/dist/leaflet.css'
+import { useAuth } from './AuthContext'
 
 const UNIT_TYPES = {
     infantry: { label: 'Піхота', defaultRadius: 400, category: 'main' },
@@ -215,6 +216,11 @@ export function FireControl() {
     const [explosion, setExplosion] = useState(null)
 
     const idCounter = useRef(1)
+    const { token, isLoggedIn } = useAuth()
+
+    const [presets, setPresets] = useState([])
+    const [presetName, setPresetName] = useState('')
+    const [presetLoading, setPresetLoading] = useState(false)
     const mapRef = useRef(null)
 
     const [gotoLat, setGotoLat] = useState('')
@@ -228,11 +234,75 @@ export function FireControl() {
         }
     }
 
+    const authHeaders = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+
+    const fetchPresets = useCallback(() => {
+        if (!token) return
+        axios.get('/api/presets', authHeaders)
+            .then(res => setPresets(res.data))
+            .catch(() => { })
+    }, [token])
+
     useEffect(() => {
         axios.get('/api/weapons')
             .then(res => setCannons(res.data))
             .catch(err => console.error('Failed to load weapons:', err))
     }, [])
+
+    useEffect(() => {
+        fetchPresets()
+    }, [fetchPresets])
+
+    const savePreset = async () => {
+        if (!presetName.trim() || units.length === 0) return
+        setPresetLoading(true)
+        try {
+            await axios.post('/api/presets', {
+                name: presetName.trim(),
+                units_json: JSON.stringify(units),
+            }, authHeaders)
+            setPresetName('')
+            fetchPresets()
+        } catch (err) {
+            console.error('Failed to save preset:', err)
+        } finally {
+            setPresetLoading(false)
+        }
+    }
+
+    const loadPreset = (preset) => {
+        try {
+            const parsed = JSON.parse(preset.units_json)
+            setUnits(parsed)
+            setSelectedUnit(null)
+            setTrajectory(null)
+            setExplosion(null)
+            setResult(null)
+            setError(null)
+            const maxId = parsed.reduce((m, u) => Math.max(m, u.id || 0), 0)
+            idCounter.current = maxId + 1
+        } catch {
+            console.error('Failed to parse preset units')
+        }
+    }
+
+    const deletePreset = async (id) => {
+        try {
+            await axios.delete(`/api/presets/${id}`, authHeaders)
+            fetchPresets()
+        } catch { }
+    }
+
+    const toggleFavourite = async (id) => {
+        try {
+            await axios.patch(`/api/presets/${id}/favourite`, {}, authHeaders)
+            fetchPresets()
+        } catch (err) {
+            if (err.response?.status === 400) {
+                alert('SYS_ERR: MAX 3 FAVOURITES')
+            }
+        }
+    }
 
     const clearAll = () => {
         setUnits([])
@@ -695,6 +765,76 @@ export function FireControl() {
                         <button onClick={() => deleteUnit(selectedUnit.id)} className="fc-delete-btn">
                             Прибрати одиницю
                         </button>
+                    </div>
+                )}
+
+                <div className="fc-divider" />
+
+                {/* ═══ PRESETS SECTION ═══ */}
+                <h3 className="fc-panel-title">Пресети карти</h3>
+
+                {!isLoggedIn ? (
+                    <p className="fc-info-text" style={{ marginTop: '10px' }}>AUTH_REQUIRED: Увійдіть для збереження пресетів.</p>
+                ) : (
+                    <div className="fc-preset-section">
+                        <div className="fc-save-row">
+                            <input
+                                type="text"
+                                value={presetName}
+                                onChange={(e) => setPresetName(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && savePreset()}
+                                placeholder="Назва пресету..."
+                            />
+                            <button
+                                onClick={savePreset}
+                                disabled={presetLoading || !presetName.trim() || units.length === 0}
+                                className="fc-save-btn"
+                            >
+                                {presetLoading ? '...' : 'Зберегти'}
+                            </button>
+                        </div>
+
+                        {/* Favourites */}
+                        {presets.filter(p => p.is_favourite).length > 0 && (
+                            <>
+                                <h4 className="fc-cat-header">★ Обрані</h4>
+                                <div className="fc-preset-list" style={{ marginBottom: '12px' }}>
+                                    {presets.filter(p => p.is_favourite).map(p => (
+                                        <div key={p.id} className="fc-preset-item is-fav">
+                                            <div className="fc-preset-info" onClick={() => loadPreset(p)}>
+                                                <div className="fc-preset-name">{p.name}</div>
+                                                <div className="fc-preset-date">{new Date(p.created_at).toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
+                                            </div>
+                                            <div className="fc-preset-actions">
+                                                <button className="fc-preset-action star active" onClick={() => toggleFavourite(p.id)} title="Прибрати з обраних">★</button>
+                                                <button className="fc-preset-action delete" onClick={() => deletePreset(p.id)} title="Видалити">✕</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+
+                        {/* Recent (non-favourite) */}
+                        <h4 className="fc-cat-header">Нещодавні</h4>
+                        <div className="fc-preset-list">
+                            {presets.filter(p => !p.is_favourite).length === 0 ? (
+                                <div className="fc-preset-empty">NO_DATA: Пресети відсутні</div>
+                            ) : (
+                                presets.filter(p => !p.is_favourite).map(p => (
+                                    <div key={p.id} className="fc-preset-item">
+                                        <div className="fc-preset-info" onClick={() => loadPreset(p)}>
+                                            <div className="fc-preset-name">{p.name}</div>
+                                            <div className="fc-preset-date">{new Date(p.created_at).toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
+                                        </div>
+                                        <div className="fc-preset-actions">
+                                            <button className="fc-preset-action star" onClick={() => toggleFavourite(p.id)} title="Додати до обраних">☆</button>
+                                            <button className="fc-preset-action delete" onClick={() => deletePreset(p.id)} title="Видалити">✕</button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

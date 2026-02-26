@@ -3,16 +3,18 @@ import { Link, useLocation } from 'react-router-dom'
 import { Disclosure, DisclosureButton, DisclosurePanel, Transition } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
+import { useAuth } from './AuthContext'
 
 const navigation = [
     { name: 'HQ', href: '/' },
-    { name: 'Enlist', href: '/registration' },
     { name: 'Fire Control', href: '/fire-control' },
     { name: 'Profile', href: '/profile' },
 ]
 
 export function NavPanel() {
     const location = useLocation()
+    const { isLoggedIn } = useAuth()
+    const deployHref = isLoggedIn ? '/fire-control' : '/registration'
 
     return (
         <Disclosure as="nav" className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-2xl border-b border-[#2a3520] shadow-[0_4px_30px_rgba(0,0,0,0.8)]">
@@ -71,10 +73,10 @@ export function NavPanel() {
                             {/* Right side — CTA + Hamburger */}
                             <div className="flex items-center gap-4">
                                 <Link
-                                    to="/registration"
+                                    to={deployHref}
                                     className="hidden sm:inline-flex relative items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-[0.15em] text-[#0a0c09] bg-amber-700 hover:bg-amber-600 transition-all duration-300 shadow-[0_0_15px_rgba(217,119,6,0.2)] hover:shadow-[0_0_25px_rgba(217,119,6,0.4)] group overflow-hidden"
                                 >
-                                    <span className="relative z-10 flex items-center gap-2 text-orange-200">
+                                    <span className="relative z-10 flex items-center gap-2 text-orange-150">
                                         Deploy
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
@@ -137,7 +139,7 @@ export function NavPanel() {
                                 <div className="pt-4 pb-2">
                                     <DisclosureButton
                                         as={Link}
-                                        to="/registration"
+                                        to={deployHref}
                                         className="flex items-center justify-center gap-2 w-full px-4 py-4 text-xs font-bold uppercase tracking-[0.2em] text-[#0a0c09] bg-amber-500 hover:bg-amber-400 transition-all duration-200"
                                     >
                                         Deploy Now

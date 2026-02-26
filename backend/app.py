@@ -6,9 +6,10 @@ from pydantic import BaseModel
 from geopy.distance import geodesic
 from utils import SECRET_KEY, ALGORITHM, hash_password, verify_password, create_access_token
 from database import engine, Base
-from models import User, Weapon
-from schemas import UserCreate, UserLogin, UserResponse
+from models import User, Weapon, MapPreset
+from schemas import UserCreate, UserLogin, UserResponse, PresetCreate, PresetResponse
 from auth import get_db, get_current_user
+from typing import List
 
 app = FastAPI()
 
@@ -188,6 +189,77 @@ def verify_email(token: str, db: Session = Depends(get_db)):
 @app.get("/me", response_model=UserResponse)
 def get_profile(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@app.get("/presets", response_model=List[PresetResponse])
+def list_presets(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    presets = (
+        db.query(MapPreset)
+        .filter(MapPreset.user_id == current_user.id)
+        .order_by(MapPreset.created_at.desc())
+        .all()
+    )
+    return presets
+
+
+@app.post("/presets", response_model=PresetResponse)
+def create_preset(data: PresetCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    all_presets = (
+        db.query(MapPreset)
+        .filter(MapPreset.user_id == current_user.id)
+        .order_by(MapPreset.created_at.asc())
+        .all()
+    )
+
+    non_fav = [p for p in all_presets if not p.is_favourite]
+    total = len(all_presets)
+
+    while total >= 5 and non_fav:
+        oldest = non_fav.pop(0)
+        db.delete(oldest)
+        total -= 1
+
+    db.flush()
+
+    preset = MapPreset(
+        user_id=current_user.id,
+        name=data.name,
+        units_json=data.units_json,
+    )
+    db.add(preset)
+    db.commit()
+    db.refresh(preset)
+    return preset
+
+
+@app.delete("/presets/{preset_id}")
+def delete_preset(preset_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    preset = db.query(MapPreset).filter(MapPreset.id == preset_id, MapPreset.user_id == current_user.id).first()
+    if not preset:
+        raise HTTPException(status_code=404, detail="Preset not found")
+    db.delete(preset)
+    db.commit()
+    return {"message": "Preset deleted"}
+
+
+@app.patch("/presets/{preset_id}/favourite", response_model=PresetResponse)
+def toggle_favourite(preset_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    preset = db.query(MapPreset).filter(MapPreset.id == preset_id, MapPreset.user_id == current_user.id).first()
+    if not preset:
+        raise HTTPException(status_code=404, detail="Preset not found")
+
+    if not preset.is_favourite:
+        fav_count = db.query(MapPreset).filter(
+            MapPreset.user_id == current_user.id,
+            MapPreset.is_favourite == True
+        ).count()
+        if fav_count >= 3:
+            raise HTTPException(status_code=400, detail="Maximum 3 favourites allowed")
+
+    preset.is_favourite = not preset.is_favourite
+    db.commit()
+    db.refresh(preset)
+    return preset
 
 
 if __name__ == "__main__":

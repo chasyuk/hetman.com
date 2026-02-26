@@ -922,3 +922,294 @@
     color: #6b7a55;
     letter-spacing: 0.08em;
 }
+
+/* ═══ FC SELECT (shared) ═══ */
+.fc-select {
+    width: 100%;
+    padding: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: #e2e8f0;
+    background: rgba(10, 12, 9, 0.9);
+    border: 1px solid #2a3520;
+    outline: none;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+}
+
+.fc-select:focus {
+    border-color: rgba(217, 119, 6, 0.5);
+}
+
+/* ═══ FC FIRE BUTTON ═══ */
+.fc-fire-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #fff;
+    background: rgba(239, 68, 68, 0.7);
+    border: 1px solid #ef4444;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.fc-fire-btn:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.9);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.fc-fire-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.fc-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ═══ FC RESULT CARDS ═══ */
+.fc-result {
+    margin-top: 14px;
+    padding: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+}
+
+.fc-result-success {
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #4ade80;
+}
+
+.fc-result-error {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+.fc-result-badge {
+    display: block;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+}
+
+.fc-stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+}
+
+.fc-stat-label {
+    color: #6b7a55;
+}
+
+.fc-stat-value {
+    color: #e2e8f0;
+}
+
+/* ═══ FC DELETE BUTTON ═══ */
+.fc-delete-btn {
+    width: 100%;
+    padding: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fca5a5;
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.fc-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+/* ═══ FC DIVIDER ═══ */
+.fc-divider {
+    border: none;
+    border-top: 1px solid #2a3520;
+    margin: 16px 0;
+}
+
+/* ═══ FC PRESETS ═══ */
+.fc-preset-section {
+    margin-top: 14px;
+}
+
+.fc-save-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.fc-save-row input {
+    flex: 1;
+    padding: 6px 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: #e2e8f0;
+    background: rgba(10, 12, 9, 0.9);
+    border: 1px solid #2a3520;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.fc-save-row input:focus {
+    border-color: rgba(217, 119, 6, 0.5);
+}
+
+.fc-save-btn {
+    padding: 6px 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #0a0c09;
+    background: rgba(217, 119, 6, 0.8);
+    border: 1px solid #d97706;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.fc-save-btn:hover:not(:disabled) {
+    background: #d97706;
+    box-shadow: 0 0 12px rgba(217, 119, 6, 0.3);
+}
+
+.fc-save-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.fc-preset-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.fc-preset-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    background: rgba(10, 14, 8, 0.6);
+    border: 1px solid #2a3520;
+    transition: all 0.2s;
+}
+
+.fc-preset-item:hover {
+    border-color: #6b7a55;
+}
+
+.fc-preset-item.is-fav {
+    border-color: rgba(217, 119, 6, 0.4);
+    background: rgba(217, 119, 6, 0.06);
+}
+
+.fc-preset-info {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.fc-preset-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fc-preset-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: #6b7a55;
+    letter-spacing: 0.08em;
+}
+
+.fc-preset-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.fc-preset-action {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid #2a3520;
+    color: #6b7a55;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+    padding: 0;
+}
+
+.fc-preset-action:hover {
+    border-color: #6b7a55;
+    color: #e2e8f0;
+}
+
+.fc-preset-action.star {
+    color: #4a5a3a;
+}
+
+.fc-preset-action.star.active {
+    color: #d97706;
+    border-color: rgba(217, 119, 6, 0.3);
+}
+
+.fc-preset-action.star:hover {
+    color: #fbbf24;
+    border-color: rgba(217, 119, 6, 0.5);
+}
+
+.fc-preset-action.delete:hover {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.fc-preset-empty {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: #4a5a3a;
+    letter-spacing: 0.1em;
+    text-align: center;
+    padding: 12px;
+}

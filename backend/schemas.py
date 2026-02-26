@@ -1,4 +1,6 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
+from datetime import datetime
+from typing import Optional
 
 class UserCreate(BaseModel):
     codename: str
@@ -16,5 +18,18 @@ class UserResponse(BaseModel):
     name: str
     email: EmailStr
     is_verified: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+class PresetCreate(BaseModel):
+    name: str
+    units_json: str
+
+class PresetResponse(BaseModel):
+    id: int
+    name: str
+    is_favourite: bool
+    created_at: datetime
+    units_json: str
 
     model_config = ConfigDict(from_attributes=True)

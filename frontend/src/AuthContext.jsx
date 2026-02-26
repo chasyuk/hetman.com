@@ -14,8 +14,8 @@ export function AuthProvider({ children }) {
                 .then(res => {
                     setUser({ ...res.data, avatar: null })
                 })
-                .catch(err => {
-                    console.error("Failed to fetch user context", err)
+                .catch(() => {
+                    // Token expired or invalid — silently clear session
                     setToken(null)
                     localStorage.removeItem('token')
                     setUser(null)

@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from './AuthContext'
 import { ScrollReveal } from './ScrollReveal'
@@ -6,6 +6,15 @@ import { ScrollReveal } from './ScrollReveal'
 export function Profile() {
     const { user, isLoggedIn, logout, setAvatar } = useAuth()
     const fileInputRef = useRef(null)
+
+    const [sysTime, setSysTime] = useState(new Date().toLocaleTimeString('en-US', { hour12: false }))
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setSysTime(new Date().toLocaleTimeString('en-US', { hour12: false }))
+        }, 1000)
+        return () => clearInterval(timer)
+    }, [])
 
     const handleAvatarChange = (e) => {
         const file = e.target.files?.[0]
@@ -78,7 +87,7 @@ export function Profile() {
                     </div>
                     <div className="hidden sm:block text-right">
                         <div className="text-[10px] font-mono-tactical tracking-[0.3em] text-[#6b7a55]">SYS_TIME</div>
-                        <div className="text-sm font-mono-tactical tracking-widest text-amber-500">{new Date().toLocaleTimeString('en-US', { hour12: false })}</div>
+                        <div className="text-sm font-mono-tactical tracking-widest text-amber-500">{sysTime}</div>
                     </div>
                 </div>
 

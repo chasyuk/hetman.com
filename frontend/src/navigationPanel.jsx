@@ -72,7 +72,7 @@ export function NavPanel() {
                             <div className="flex items-center gap-4">
                                 <Link
                                     to="/registration"
-                                    className="hidden sm:inline-flex relative items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-[0.15em] text-[#0a0c09] bg-amber-500 hover:bg-amber-400 transition-all duration-300 shadow-[0_0_15px_rgba(217,119,6,0.2)] hover:shadow-[0_0_25px_rgba(217,119,6,0.4)] group overflow-hidden"
+                                    className="hidden sm:inline-flex relative items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-[0.15em] text-[#0a0c09] bg-amber-700 hover:bg-amber-600 transition-all duration-300 shadow-[0_0_15px_rgba(217,119,6,0.2)] hover:shadow-[0_0_25px_rgba(217,119,6,0.4)] group overflow-hidden"
                                 >
                                     <span className="relative z-10 flex items-center gap-2">
                                         Deploy

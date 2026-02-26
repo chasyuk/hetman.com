@@ -2,4 +2,6 @@ venv/
 backend/authorization/venv/
 __pycache__/
 *.pyc
+
+# Environment variables
 .env

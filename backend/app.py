@@ -14,9 +14,6 @@ app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
 
-
-# ─── Seed weapons on startup ────────────────────────────────────
-
 SEED_WEAPONS = [
     {"name": "10.5 cm leFH 18", "caliber_mm": 105, "muzzle_velocity_ms": 470, "max_range_m": 10675},
     {"name": "100 mm field gun M1944 (BS-3)", "caliber_mm": 100, "muzzle_velocity_ms": 900, "max_range_m": 20000},
@@ -52,10 +49,6 @@ def seed_weapons():
     finally:
         db.close()
 
-
-# ─── Weapons Endpoint ───────────────────────────────────────────
-
-@app.get("/weapons")
 def list_weapons(db: Session = Depends(get_db)):
     weapons = db.query(Weapon).all()
     return [
@@ -69,10 +62,6 @@ def list_weapons(db: Session = Depends(get_db)):
         for w in weapons
     ]
 
-
-# ─── Artillery Calculator ───────────────────────────────────────
-
-class ShotRequest(BaseModel):
     cannon_lat: float
     cannon_lng: float
     target_lat: float
@@ -98,11 +87,6 @@ def calculate_shot(data: ShotRequest):
     cannon_coords = (data.cannon_lat, data.cannon_lng)
     target_coords = (data.target_lat, data.target_lng)
 
-    # 1. Distance
-    distance_meters = geodesic(cannon_coords, target_coords).meters
-
-    # Check if target is within range
-    if distance_meters > data.max_range:
         return {
             "status": "error",
             "message": (
@@ -112,13 +96,9 @@ def calculate_shot(data: ShotRequest):
             ),
         }
 
-    # 2. Azimuth
-    azimuth = calculate_bearing(
         cannon_coords[0], cannon_coords[1],
         target_coords[0], target_coords[1],
     )
-
-    # 3. Elevation angle
     g = 9.81
     val = (distance_meters * g) / (data.velocity ** 2)
 
@@ -137,10 +117,6 @@ def calculate_shot(data: ShotRequest):
         "elevation": round(elevation_angle, 2),
     }
 
-
-# ─── Auth Endpoints ─────────────────────────────────────────────
-
-@app.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:

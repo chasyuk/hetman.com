@@ -9,4 +9,3 @@ python-multipart
 python-jose[cryptography]
 sqlalchemy
 geopy
-python-dotenv==1.2.1

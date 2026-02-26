@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { MapContainer, TileLayer, Marker, Polyline, Circle, useMapEvents, useMap } from 'react-leaflet'
 import L from 'leaflet'
-import axios from 'axios'
+import api from './api'
 import 'leaflet/dist/leaflet.css'
 import { useAuth } from './AuthContext'
 
@@ -238,13 +238,13 @@ export function FireControl() {
 
     const fetchPresets = useCallback(() => {
         if (!token) return
-        axios.get('/api/presets', authHeaders)
+        api.get('/presets', authHeaders)
             .then(res => setPresets(res.data))
             .catch(() => { })
     }, [token])
 
     useEffect(() => {
-        axios.get('/api/weapons')
+        api.get('/weapons')
             .then(res => setCannons(res.data))
             .catch(err => console.error('Failed to load weapons:', err))
     }, [])
@@ -257,7 +257,7 @@ export function FireControl() {
         if (!presetName.trim() || units.length === 0) return
         setPresetLoading(true)
         try {
-            await axios.post('/api/presets', {
+            await api.post('/presets', {
                 name: presetName.trim(),
                 units_json: JSON.stringify(units),
             }, authHeaders)
@@ -288,14 +288,14 @@ export function FireControl() {
 
     const deletePreset = async (id) => {
         try {
-            await axios.delete(`/api/presets/${id}`, authHeaders)
+            await api.delete(`/presets/${id}`, authHeaders)
             fetchPresets()
         } catch { }
     }
 
     const toggleFavourite = async (id) => {
         try {
-            await axios.patch(`/api/presets/${id}/favourite`, {}, authHeaders)
+            await api.patch(`/presets/${id}/favourite`, {}, authHeaders)
             fetchPresets()
         } catch (err) {
             if (err.response?.status === 400) {
@@ -395,7 +395,7 @@ export function FireControl() {
         setExplosion(null)
 
         try {
-            const res = await axios.post('/api/calculate_shot', {
+            const res = await api.post('/calculate_shot', {
                 cannon_lat: selectedUnit.lat,
                 cannon_lng: selectedUnit.lng,
                 target_lat: target.lat,

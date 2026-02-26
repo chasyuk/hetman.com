@@ -4,6 +4,7 @@ services:
     name: hetman-backend
     runtime: docker
     dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
     plan: free
     envVars:
       - key: SECRET_KEY
@@ -18,6 +19,7 @@ services:
     name: hetman-frontend
     runtime: docker
     dockerContext: ./frontend
+    dockerfilePath: ./frontend/Dockerfile
     plan: free
     envVars:
       - key: VITE_API_URL

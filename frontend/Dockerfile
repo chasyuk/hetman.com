@@ -1,17 +1,21 @@
-# frontend/Dockerfile
-FROM node:22-alpine
+# Stage 1 — Build
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Install dependencies
 COPY package*.json ./
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
-# Copy source code
 COPY . .
 
-# Expose the port Vite runs on
-EXPOSE 5173
+RUN npm run build
 
-# --host is CRITICAL to access it from your browser outside the container
-CMD ["npm", "run", "dev", "--", "--host"]
+# Stage 2 — Serve
+FROM node:22-alpine
+
+RUN npm install -g serve
+
+WORKDIR /app
+COPY --from=build /app/dist ./dist
+
+CMD serve -s dist -l ${PORT:-5173}

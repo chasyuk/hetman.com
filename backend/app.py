@@ -10,8 +10,17 @@ from models import User, Weapon, MapPreset
 from schemas import UserCreate, UserLogin, UserResponse, PresetCreate, PresetResponse
 from auth import get_db, get_current_user
 from typing import List
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 Base.metadata.create_all(bind=engine)
 

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './App.css'
-import axios from 'axios'
+import api from './api'
 import { useAuth } from './AuthContext'
 
 export function Registration() {
@@ -25,17 +25,17 @@ export function Registration() {
         setIsLoading(true)
         try {
             if (endpoint.includes("login")) {
-                const res = await axios.post(endpoint, {
+                const res = await api.post(endpoint, {
                     email: userData.email,
                     password: userData.password,
                 })
                 const accessToken = res.data.access_token
 
-                const meRes = await axios.get('/api/me', { headers: { Authorization: `Bearer ${accessToken}` } })
+                const meRes = await api.get('/me', { headers: { Authorization: `Bearer ${accessToken}` } })
                 auth.login(meRes.data, accessToken)
                 navigate('/profile')
             } else {
-                const res = await axios.post(endpoint, {
+                const res = await api.post(endpoint, {
                     codename: userData.codename,
                     name: userData.name,
                     email: userData.email,
@@ -43,7 +43,7 @@ export function Registration() {
                 })
                 const verifyToken = res.data.verification_token
 
-                await axios.get(`/api/verify/${verifyToken}`)
+                await api.get(`/verify/${verifyToken}`)
 
                 showError("SYS_SUCCESS: Identity verified successfully. Please Enlist (Login).")
                 setIsLogin(true)
@@ -82,7 +82,7 @@ export function Registration() {
     const submitUser = async (e) => {
         e.preventDefault()
 
-        const endpoint = isLogin ? '/api/login' : '/api/register'
+        const endpoint = isLogin ? '/login' : '/register'
 
         let isFormEmpty = false
         if (!isLogin) {

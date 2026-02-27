@@ -8,9 +8,6 @@ RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 COPY . .
 
-ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
-
 RUN npm run build
 
 # Stage 2 — Serve
@@ -20,5 +17,7 @@ RUN npm install -g serve
 
 WORKDIR /app
 COPY --from=build /app/dist ./dist
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
 
-CMD serve -s dist -l ${PORT:-5173}
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

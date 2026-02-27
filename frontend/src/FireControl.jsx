@@ -244,9 +244,32 @@ export function FireControl() {
     }, [token])
 
     useEffect(() => {
-        api.get('/weapons')
-            .then(res => setCannons(res.data))
-            .catch(err => console.error('Failed to load weapons:', err))
+        let cancelled = false
+        const fetchWeapons = (retries = 3, delay = 2000) => {
+            api.get('/weapons')
+                .then(res => {
+                    if (cancelled) return
+                    if (Array.isArray(res.data)) {
+                        setCannons(res.data)
+                    } else if (retries > 0) {
+                        console.warn('Weapons response is not an array, retrying...', res.data)
+                        setTimeout(() => fetchWeapons(retries - 1, delay * 1.5), delay)
+                    } else {
+                        console.error('Failed to load weapons: unexpected response', res.data)
+                    }
+                })
+                .catch(err => {
+                    if (cancelled) return
+                    if (retries > 0) {
+                        console.warn('Failed to load weapons, retrying...', err.message)
+                        setTimeout(() => fetchWeapons(retries - 1, delay * 1.5), delay)
+                    } else {
+                        console.error('Failed to load weapons:', err)
+                    }
+                })
+        }
+        fetchWeapons()
+        return () => { cancelled = true }
     }, [])
 
     useEffect(() => {

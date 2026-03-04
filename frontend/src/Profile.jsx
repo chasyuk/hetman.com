@@ -1,11 +1,10 @@
-import { useRef, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from './AuthContext'
 import { ScrollReveal } from './ScrollReveal'
 
 export function Profile() {
-    const { user, isLoggedIn, logout, setAvatar } = useAuth()
-    const fileInputRef = useRef(null)
+    const { user, isLoggedIn, logout } = useAuth()
 
     const [sysTime, setSysTime] = useState(new Date().toLocaleTimeString('en-US', { hour12: false }))
 
@@ -16,20 +15,7 @@ export function Profile() {
         return () => clearInterval(timer)
     }, [])
 
-    const handleAvatarChange = (e) => {
-        const file = e.target.files?.[0]
-        if (file) {
-            if (file.size > 5 * 1024 * 1024) {
-                alert('SYS_ERR: FILE EXCEEDS MAX_SIZE MATRIX (5MB)')
-                return
-            }
-            const reader = new FileReader()
-            reader.onload = (ev) => {
-                setAvatar(ev.target.result)
-            }
-            reader.readAsDataURL(file)
-        }
-    }
+
 
     if (!isLoggedIn) {
         return (
@@ -94,62 +80,34 @@ export function Profile() {
                 <div className="w-full grid grid-cols-1 md:grid-cols-[1fr_2.5fr] gap-6">
 
                     {/* Avatar Column */}
-                    <ScrollReveal direction="right" distance={25} duration={0.6} delay={0.15} className="tactical-border border border-[#2a3520] bg-black/50 backdrop-blur-xl p-6 flex flex-col items-center gap-6 shadow-2xl relative group">
+                    <ScrollReveal direction="right" distance={25} duration={0.6} delay={0.15} className="tactical-border border border-[#2a3520] bg-black/50 backdrop-blur-xl p-6 flex flex-col items-center gap-6 shadow-2xl relative group overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent pointer-events-none"></div>
 
-                        {/* Image Frame */}
-                        <div
-                            onClick={() => fileInputRef.current?.click()}
-                            className="relative w-40 h-40 group/avatar cursor-pointer"
-                        >
-                            {/* Scanning laser effect */}
-                            <div className="absolute top-0 left-0 w-full h-[2px] bg-amber-500 opacity-0 group-hover/avatar:opacity-100 group-hover/avatar:animate-[scanline_2s_ease-in-out_infinite] z-20 shadow-[0_0_10px_#d97706]"></div>
-
-                            <div className="absolute inset-0 border border-[#3a4a2a] bg-[#0a0c09] overflow-hidden group-hover/avatar:border-amber-500/60 transition-colors z-10 relative">
-                                {user.avatar ? (
-                                    <img
-                                        src={user.avatar}
-                                        alt="Profile"
-                                        className="w-full h-full object-cover filter grayscale group-hover/avatar:grayscale-0 transition-all duration-500 opacity-80 group-hover/avatar:opacity-100"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-[#111610]">
-                                        <svg className="w-8 h-8 text-[#3a4a2a] group-hover/avatar:text-amber-500/40 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                        <span className="text-[10px] font-mono-tactical text-[#3a4a2a] group-hover/avatar:text-amber-500/40">NO_IMG</span>
-                                    </div>
-                                )}
+                        {/* Static Avatar Frame */}
+                        <div className="relative w-40 h-40 shrink-0">
+                            <div className="absolute inset-0 border border-[#3a4a2a] bg-[#0a0c09] overflow-hidden z-10 relative">
+                                <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-[#111610]">
+                                    <svg className="w-10 h-10 text-[#3a4a2a]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
                             </div>
 
                             {/* Target reticle corners */}
-                            <div className="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-amber-500/80 transition-transform group-hover/avatar:translate-x-1 group-hover/avatar:translate-y-1 z-30"></div>
-                            <div className="absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 border-amber-500/80 transition-transform group-hover/avatar:-translate-x-1 group-hover/avatar:translate-y-1 z-30"></div>
-                            <div className="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-amber-500/80 transition-transform group-hover/avatar:translate-x-1 group-hover/avatar:-translate-y-1 z-30"></div>
-                            <div className="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-amber-500/80 transition-transform group-hover/avatar:-translate-x-1 group-hover/avatar:-translate-y-1 z-30"></div>
+                            <div className="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-amber-500/80 z-30"></div>
+                            <div className="absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 border-amber-500/80 z-30"></div>
+                            <div className="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-amber-500/80 z-30"></div>
+                            <div className="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-amber-500/80 z-30"></div>
                         </div>
 
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={handleAvatarChange}
-                            className="hidden"
-                        />
-
-                        <div className="text-center w-full">
-                            <span className="block text-xl font-bold uppercase tracking-widest text-[#e2e8f0] mb-1">
+                        <div className="text-center w-full overflow-hidden">
+                            <span className="block text-xl font-bold uppercase tracking-widest text-[#e2e8f0] mb-1 truncate">
                                 {user.codename || user.name || 'UNKNOWN'}
                             </span>
                             <span className="block text-[10px] font-mono-tactical tracking-[0.4em] text-emerald-500">
                                 STS: ACTIVE
                             </span>
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="mt-4 w-full py-2 border border-[#3a4a2a] text-[10px] font-mono-tactical tracking-[0.3em] text-[#8a9a6a] hover:bg-amber-500 hover:text-[#0a0c09] hover:border-amber-500 transition-all cursor-pointer bg-[#0a0c09]"
-                            >
-                                {user.avatar ? 'UPDATE_VISUAL' : 'INIT_VISUAL'}
-                            </button>
+
                         </div>
                     </ScrollReveal>
 

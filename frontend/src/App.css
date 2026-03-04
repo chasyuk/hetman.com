@@ -155,7 +155,7 @@
 .fc-root {
     position: relative;
     width: 100%;
-    height: calc(100vh - 5rem);
+    height: calc(100dvh - 5rem);
     overflow: hidden;
     background: #0a0c09;
     font-family: 'Rajdhani', sans-serif;
@@ -252,43 +252,55 @@
     }
 }
 
-/* Small screens (≤768px) — compact panels */
+/* Mobile screens (≤768px) — Bottom sheet layout */
 @media (max-width: 768px) {
     .fc-panel {
-        width: 180px;
-        padding: 10px;
-        font-size: 0.8rem;
-    }
-
-    .fc-panel-right {
-        width: 200px;
-    }
-}
-
-/* Very small screens (≤560px) — stack panels at bottom */
-@media (max-width: 560px) {
-    .fc-panel {
-        position: fixed;
+        position: absolute;
         top: auto;
         bottom: 0;
         left: 0;
         right: 0;
         width: 100%;
-        max-height: 40vh;
-        border-radius: 12px 12px 0 0;
+        max-height: 55dvh;
+        /* Leave top 45% for map */
+        border-radius: 16px 16px 0 0;
         border: 1px solid #2a3520;
+        border-bottom: none;
         z-index: 1002;
+        padding: 14px;
+        font-size: 0.85rem;
+        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.8);
     }
 
     .fc-panel-left {
-        left: 0;
         display: none;
-        /* hide left panel on very small screens, right panel is priority */
+        /* Hide left map tools on mobile to prioritize firing panel */
     }
 
     .fc-panel-right {
         width: 100%;
         right: 0;
+    }
+
+    /* Enlarge touch targets for mobile dropdowns and inputs */
+    .fc-weapon-dropdown-trigger {
+        padding: 12px 14px;
+        font-size: 0.85rem;
+    }
+
+    .fc-weapon-option {
+        padding: 12px 14px;
+        font-size: 0.85rem;
+    }
+
+    .fc-input {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+
+    .fc-preset-btn,
+    .fc-fire-btn {
+        padding: 10px 14px;
     }
 }
 
@@ -798,6 +810,11 @@
 }
 
 /* ═══ FC RIGHT PANEL ELEMENTS ═══ */
+.fc-battery-box {
+    position: relative;
+    padding-bottom: 8px;
+}
+
 .fc-selected-badge {
     padding: 8px 10px;
     margin-bottom: 14px;
@@ -1212,4 +1229,214 @@
     letter-spacing: 0.1em;
     text-align: center;
     padding: 12px;
+}
+
+/* ═══ CUSTOM WEAPON DROPDOWN ═══ */
+.fc-weapon-dropdown {
+    position: relative;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.fc-weapon-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 8px 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: #e2e8f0;
+    background: rgba(10, 12, 9, 0.9);
+    border: 1px solid #2a3520;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.fc-weapon-dropdown-trigger:hover,
+.fc-weapon-dropdown-trigger:focus {
+    border-color: rgba(217, 119, 6, 0.5);
+    outline: none;
+}
+
+.fc-weapon-dropdown-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+}
+
+.fc-weapon-dropdown-arrow {
+    margin-left: 8px;
+    font-size: 0.9rem;
+    color: #6b7a55;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+
+.fc-weapon-dropdown-arrow.open {
+    transform: rotate(180deg);
+}
+
+.fc-weapon-dropdown-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 240px;
+    overflow-y: auto;
+    background: rgba(10, 14, 8, 0.97);
+    border: 1px solid #2a3520;
+    border-top: none;
+    z-index: 100;
+    scrollbar-width: thin;
+    scrollbar-color: #2a3520 transparent;
+    animation: fc-dropdown-open 0.15s ease-out;
+}
+
+@keyframes fc-dropdown-open {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fc-weapon-option {
+    position: relative;
+    padding: 7px 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: #c0c8b0;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-bottom: 1px solid rgba(42, 53, 32, 0.4);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fc-weapon-option:last-child {
+    border-bottom: none;
+}
+
+.fc-weapon-option:hover {
+    background: rgba(217, 119, 6, 0.12);
+    color: #fbbf24;
+}
+
+.fc-weapon-option.active {
+    background: rgba(217, 119, 6, 0.18);
+    color: #fbbf24;
+    border-left: 2px solid #d97706;
+}
+
+.fc-weapon-option-name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ═══ WEAPON PREVIEW CARD (fixed over map) ═══ */
+.fc-weapon-preview {
+    position: fixed;
+    right: 380px;
+    /* Panel width 340px + 20px margin + 20px gap */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 260px;
+    border: 1px solid rgba(217, 119, 6, 0.4);
+    background: rgba(10, 14, 8, 0.97);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 15px rgba(217, 119, 6, 0.2);
+    animation: fc-preview-in 0.2s ease-out;
+    border-radius: 4px;
+    z-index: 2000;
+    /* Must be above the map and other panels */
+    pointer-events: none;
+}
+
+@media (max-width: 1400px) {
+    .fc-weapon-preview {
+        right: 340px;
+        /* Adjust for smaller panel */
+    }
+}
+
+@media (max-width: 1100px) {
+    .fc-weapon-preview {
+        right: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .fc-weapon-preview {
+        display: none;
+        /* Hide hover preview on mobile to save space */
+    }
+}
+
+@keyframes fc-preview-in {
+    from {
+        opacity: 0;
+        margin-right: -10px;
+    }
+
+    to {
+        opacity: 1;
+        margin-right: 0;
+    }
+}
+
+.fc-weapon-preview-img-wrap {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    background: #0a0c09;
+    border-bottom: 1px solid rgba(42, 53, 32, 0.6);
+}
+
+.fc-weapon-preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fc-weapon-preview-name {
+    padding: 8px 10px 4px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #fbbf24;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(42, 53, 32, 0.5);
+}
+
+.fc-weapon-preview-stats {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.fc-wt-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #6b7a55;
+}
+
+.fc-wt-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: #d97706;
+    margin-left: 4px;
 }

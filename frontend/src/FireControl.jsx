@@ -223,6 +223,20 @@ export function FireControl() {
     const [presetLoading, setPresetLoading] = useState(false)
     const mapRef = useRef(null)
 
+    const [weaponDropdownOpen, setWeaponDropdownOpen] = useState(false)
+    const [hoveredWeaponIdx, setHoveredWeaponIdx] = useState(null)
+    const weaponDropdownRef = useRef(null)
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (weaponDropdownRef.current && !weaponDropdownRef.current.contains(e.target)) {
+                setWeaponDropdownOpen(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
     const [gotoLat, setGotoLat] = useState('')
     const [gotoLng, setGotoLng] = useState('')
 
@@ -239,7 +253,11 @@ export function FireControl() {
     const fetchPresets = useCallback(() => {
         if (!token) return
         api.get('/presets', authHeaders)
-            .then(res => setPresets(res.data))
+            .then(res => {
+                if (Array.isArray(res.data)) {
+                    setPresets(res.data)
+                }
+            })
             .catch(() => { })
     }, [token])
 
@@ -617,17 +635,7 @@ export function FireControl() {
                             pathOptions={{ color: '#ff0000', weight: 4, dashArray: '10 10', opacity: 0.9 }}
                         />
                     )}
-                    {explosion && (
-                        <Marker
-                            position={[explosion.lat, explosion.lng]}
-                            icon={L.divIcon({
-                                html: '<span style="font-size: 24px; filter: drop-shadow(0 0 10px red);">💥</span>',
-                                className: 'explosion-marker',
-                                iconSize: [30, 30],
-                                iconAnchor: [15, 15]
-                            })}
-                        />
-                    )}
+
                 </MapContainer>
             </div>
 
@@ -716,15 +724,37 @@ export function FireControl() {
                         {selectedUnit.type === 'battery' && (
                             <div className="fc-battery-box">
                                 <label className="fc-field-label">Гармата</label>
-                                <select
-                                    value={cannonModelIdx}
-                                    onChange={(e) => setCannonModelIdx(parseInt(e.target.value))}
-                                    className="fc-select"
-                                >
-                                    {cannons.map((c, i) => (
-                                        <option key={i} value={i}>{c.name}</option>
-                                    ))}
-                                </select>
+                                <div className="fc-weapon-dropdown" ref={weaponDropdownRef}>
+                                    <button
+                                        className="fc-weapon-dropdown-trigger"
+                                        onClick={() => setWeaponDropdownOpen(prev => !prev)}
+                                        type="button"
+                                    >
+                                        <span className="fc-weapon-dropdown-text">{currentCannon?.name ?? 'Оберіть гармату'}</span>
+                                        <span className={`fc-weapon-dropdown-arrow ${weaponDropdownOpen ? 'open' : ''}`}>▾</span>
+                                    </button>
+                                    {weaponDropdownOpen && (
+                                        <div className="fc-weapon-dropdown-list">
+                                            {cannons.map((c, i) => (
+                                                <div
+                                                    key={i}
+                                                    className={`fc-weapon-option ${i === cannonModelIdx ? 'active' : ''}`}
+                                                    onClick={() => {
+                                                        setCannonModelIdx(i)
+                                                        setWeaponDropdownOpen(false)
+                                                        setHoveredWeaponIdx(null)
+                                                    }}
+                                                    onMouseEnter={() => setHoveredWeaponIdx(i)}
+                                                    onMouseLeave={() => setHoveredWeaponIdx(null)}
+                                                >
+                                                    <span className="fc-weapon-option-name">{c.name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+
 
                                 <div className="fc-battery-stats">
                                     <div>Швидкість: <span>{currentCannon?.muzzle_velocity_ms ?? '—'}</span> м/с</div>
@@ -761,7 +791,7 @@ export function FireControl() {
 
                                 {result && (
                                     <div className="fc-result fc-result-success">
-                                        <span className="fc-result-badge">✅ ВЛУЧАННЯ МОЖЛИВЕ</span>
+                                        <span className="fc-result-badge">ВЛУЧАННЯ МОЖЛИВЕ</span>
                                         <div className="fc-stat-row">
                                             <span className="fc-stat-label">Відстань</span>
                                             <span className="fc-stat-value">{result.distance} м</span>
@@ -817,10 +847,9 @@ export function FireControl() {
                             </button>
                         </div>
 
-                        {/* Favourites */}
                         {presets.filter(p => p.is_favourite).length > 0 && (
                             <>
-                                <h4 className="fc-cat-header">★ Обрані</h4>
+                                <h4 className="fc-cat-header">Обрані</h4>
                                 <div className="fc-preset-list" style={{ marginBottom: '12px' }}>
                                     {presets.filter(p => p.is_favourite).map(p => (
                                         <div key={p.id} className="fc-preset-item is-fav">
@@ -838,7 +867,6 @@ export function FireControl() {
                             </>
                         )}
 
-                        {/* Recent (non-favourite) */}
                         <h4 className="fc-cat-header">Нещодавні</h4>
                         <div className="fc-preset-list">
                             {presets.filter(p => !p.is_favourite).length === 0 ? (
@@ -861,6 +889,28 @@ export function FireControl() {
                     </div>
                 )}
             </div>
-        </div>
+
+            {/* Render preview safely outside the panels to bypass backdrop-filter stacking block issues */}
+            {hoveredWeaponIdx !== null && cannons[hoveredWeaponIdx] && (
+                <div className="fc-weapon-preview">
+                    {cannons[hoveredWeaponIdx].image_url && (
+                        <div className="fc-weapon-preview-img-wrap">
+                            <img
+                                src={cannons[hoveredWeaponIdx].image_url}
+                                alt={cannons[hoveredWeaponIdx].name}
+                                className="fc-weapon-preview-img"
+                                referrerPolicy="no-referrer"
+                            />
+                        </div>
+                    )}
+                    <div className="fc-weapon-preview-name">{cannons[hoveredWeaponIdx].name}</div>
+                    <div className="fc-weapon-preview-stats">
+                        <div><span className="fc-wt-label">Калібр:</span> <span className="fc-wt-value">{cannons[hoveredWeaponIdx].caliber_mm} мм</span></div>
+                        <div><span className="fc-wt-label">Швидкість:</span> <span className="fc-wt-value">{cannons[hoveredWeaponIdx].muzzle_velocity_ms} м/с</span></div>
+                        <div><span className="fc-wt-label">Дальність:</span> <span className="fc-wt-value">{cannons[hoveredWeaponIdx].max_range_m} м</span></div>
+                    </div>
+                </div>
+            )}
+        </div >
     )
 }

@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
         if (token) {
             api.get('/me', { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
-                    setUser({ ...res.data, avatar: null })
+                    setUser(res.data)
                 })
                 .catch(() => {
                     // Token expired or invalid — silently clear session
@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
     const login = (userData, accessToken) => {
         setToken(accessToken)
         localStorage.setItem('token', accessToken)
-        setUser({ ...userData, avatar: null })
+        setUser(userData)
     }
 
     const logout = () => {
@@ -38,12 +38,10 @@ export function AuthProvider({ children }) {
         setUser(null)
     }
 
-    const setAvatar = (avatarUrl) => {
-        setUser(prev => prev ? { ...prev, avatar: avatarUrl } : null)
-    }
+
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, setAvatar, isLoggedIn: !!user }}>
+        <AuthContext.Provider value={{ user, token, login, logout, isLoggedIn: !!user }}>
             {!isLoading && children}
         </AuthContext.Provider>
     )

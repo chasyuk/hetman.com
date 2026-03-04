@@ -22,6 +22,7 @@ class Weapon(Base):
     caliber_mm = Column(Float)
     muzzle_velocity_ms = Column(Float)
     max_range_m = Column(Float)
+    image_url = Column(String, default="")
 
 
 class MapPreset(Base):

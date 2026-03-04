@@ -25,26 +25,26 @@ app.add_middleware(
 Base.metadata.create_all(bind=engine)
 
 SEED_WEAPONS = [
-    {"name": "10.5 cm leFH 18", "caliber_mm": 105, "muzzle_velocity_ms": 470, "max_range_m": 10675},
-    {"name": "100 mm field gun M1944 (BS-3)", "caliber_mm": 100, "muzzle_velocity_ms": 900, "max_range_m": 20000},
-    {"name": "122 mm gun M1931/37 (A-19)", "caliber_mm": 122, "muzzle_velocity_ms": 806, "max_range_m": 20400},
-    {"name": "122 mm howitzer 2A18 (D-30)", "caliber_mm": 122, "muzzle_velocity_ms": 690, "max_range_m": 21900},
-    {"name": "122 mm howitzer M1938 (M-30)", "caliber_mm": 121.92, "muzzle_velocity_ms": 515, "max_range_m": 11800},
-    {"name": "130 mm towed field gun M1954 (M-46)", "caliber_mm": 130, "muzzle_velocity_ms": 930, "max_range_m": 27150},
-    {"name": "15 cm sFH 18", "caliber_mm": 149, "muzzle_velocity_ms": 520, "max_range_m": 18200},
-    {"name": "152 mm gun-howitzer D-20", "caliber_mm": 152.4, "muzzle_velocity_ms": 650, "max_range_m": 24000},
-    {"name": "152 mm howitzer 2A65 Msta-B", "caliber_mm": 152.4, "muzzle_velocity_ms": 828, "max_range_m": 24700},
-    {"name": "152 mm howitzer M1943 (D-1)", "caliber_mm": 152.4, "muzzle_velocity_ms": 508, "max_range_m": 12400},
-    {"name": "152 mm howitzer-gun M1937 (ML-20)", "caliber_mm": 152.4, "muzzle_velocity_ms": 655, "max_range_m": 17230},
-    {"name": "155 mm gun M1 (Long Tom)", "caliber_mm": 155, "muzzle_velocity_ms": 853, "max_range_m": 23700},
-    {"name": "203 mm howitzer M1931 (B-4)", "caliber_mm": 203.2, "muzzle_velocity_ms": 607, "max_range_m": 18000},
-    {"name": "85 mm divisional gun D-44", "caliber_mm": 85, "muzzle_velocity_ms": 1030, "max_range_m": 15650},
-    {"name": "Canon de 75 modèle 1897", "caliber_mm": 75, "muzzle_velocity_ms": 500, "max_range_m": 11000},
-    {"name": "M102 howitzer", "caliber_mm": 105, "muzzle_velocity_ms": 494, "max_range_m": 15100},
-    {"name": "M114 155 mm howitzer", "caliber_mm": 155, "muzzle_velocity_ms": 563, "max_range_m": 14600},
-    {"name": "M198 howitzer", "caliber_mm": 155, "muzzle_velocity_ms": 684, "max_range_m": 40000},
-    {"name": "M777 Lightweight Towed Howitzer", "caliber_mm": 155, "muzzle_velocity_ms": 827, "max_range_m": 40000},
-    {"name": "Ordnance QF 25-pounder", "caliber_mm": 87.6, "muzzle_velocity_ms": 532, "max_range_m": 12253},
+    {"name": "10.5 cm leFH 18", "caliber_mm": 105, "muzzle_velocity_ms": 470, "max_range_m": 10675, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=10.5+cm+leFH+18"},
+    {"name": "100 mm field gun M1944 (BS-3)", "caliber_mm": 100, "muzzle_velocity_ms": 900, "max_range_m": 20000, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=100+mm+field+gun+M1944+%28BS-3%29"},
+    {"name": "122 mm gun M1931/37 (A-19)", "caliber_mm": 122, "muzzle_velocity_ms": 806, "max_range_m": 20400, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=122+mm+gun+M1931%2F37+%28A-19%29"},
+    {"name": "122 mm howitzer 2A18 (D-30)", "caliber_mm": 122, "muzzle_velocity_ms": 690, "max_range_m": 21900, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=122+mm+howitzer+2A18+%28D-30%29"},
+    {"name": "122 mm howitzer M1938 (M-30)", "caliber_mm": 121.92, "muzzle_velocity_ms": 515, "max_range_m": 11800, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=122+mm+howitzer+M1938+%28M-30%29"},
+    {"name": "130 mm towed field gun M1954 (M-46)", "caliber_mm": 130, "muzzle_velocity_ms": 930, "max_range_m": 27150, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=130+mm+towed+field+gun+M1954+%28M-46%29"},
+    {"name": "15 cm sFH 18", "caliber_mm": 149, "muzzle_velocity_ms": 520, "max_range_m": 18200, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=15+cm+sFH+18"},
+    {"name": "152 mm gun-howitzer D-20", "caliber_mm": 152.4, "muzzle_velocity_ms": 650, "max_range_m": 24000, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=152+mm+gun-howitzer+D-20"},
+    {"name": "152 mm howitzer 2A65 Msta-B", "caliber_mm": 152.4, "muzzle_velocity_ms": 828, "max_range_m": 24700, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=152+mm+howitzer+2A65+Msta-B"},
+    {"name": "152 mm howitzer M1943 (D-1)", "caliber_mm": 152.4, "muzzle_velocity_ms": 508, "max_range_m": 12400, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=152+mm+howitzer+M1943+%28D-1%29"},
+    {"name": "152 mm howitzer-gun M1937 (ML-20)", "caliber_mm": 152.4, "muzzle_velocity_ms": 655, "max_range_m": 17230, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=152+mm+howitzer-gun+M1937+%28ML-20%29"},
+    {"name": "155 mm gun M1 (Long Tom)", "caliber_mm": 155, "muzzle_velocity_ms": 853, "max_range_m": 23700, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=155+mm+gun+M1+%28Long+Tom%29"},
+    {"name": "203 mm howitzer M1931 (B-4)", "caliber_mm": 203.2, "muzzle_velocity_ms": 607, "max_range_m": 18000, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=203+mm+howitzer+M1931+%28B-4%29"},
+    {"name": "85 mm divisional gun D-44", "caliber_mm": 85, "muzzle_velocity_ms": 1030, "max_range_m": 15650, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=85+mm+divisional+gun+D-44"},
+    {"name": "Canon de 75 modèle 1897", "caliber_mm": 75, "muzzle_velocity_ms": 500, "max_range_m": 11000, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=Canon+de+75+mod%C3%A8le+1897"},
+    {"name": "M102 howitzer", "caliber_mm": 105, "muzzle_velocity_ms": 494, "max_range_m": 15100, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=M102+howitzer"},
+    {"name": "M114 155 mm howitzer", "caliber_mm": 155, "muzzle_velocity_ms": 563, "max_range_m": 14600, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=M114+155+mm+howitzer"},
+    {"name": "M198 howitzer", "caliber_mm": 155, "muzzle_velocity_ms": 684, "max_range_m": 40000, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=M198+howitzer"},
+    {"name": "M777 Lightweight Towed Howitzer", "caliber_mm": 155, "muzzle_velocity_ms": 827, "max_range_m": 40000, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=M777+Lightweight+Towed+Howitzer"},
+    {"name": "Ordnance QF 25-pounder", "caliber_mm": 87.6, "muzzle_velocity_ms": 532, "max_range_m": 12253, "image_url": "https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text=Ordnance+QF+25-pounder"},
 ]
 
 
@@ -52,9 +52,22 @@ SEED_WEAPONS = [
 def seed_weapons():
     db = next(get_db())
     try:
+        import urllib.parse
         if db.query(Weapon).count() == 0:
             for w in SEED_WEAPONS:
                 db.add(Weapon(**w))
+            db.commit()
+        else:
+            # Auto-migrate existing database to use nice placehold.co images instead of broken wikimedia links
+            weapons_to_update = db.query(Weapon).filter(
+                (Weapon.image_url.like('%upload.wikimedia.org%')) |
+                (Weapon.image_url.like('%wsrv.nl%')) |
+                (Weapon.image_url == None) |
+                (Weapon.image_url == '')
+            ).all()
+            for w in weapons_to_update:
+                encoded_name = urllib.parse.quote(w.name)
+                w.image_url = f"https://placehold.co/600x400/0a0c09/fbbf24?font=oswald&text={encoded_name}"
             db.commit()
     finally:
         db.close()
@@ -70,6 +83,7 @@ def list_weapons(db: Session = Depends(get_db)):
             "caliber_mm": w.caliber_mm,
             "muzzle_velocity_ms": w.muzzle_velocity_ms,
             "max_range_m": w.max_range_m,
+            "image_url": w.image_url or "",
         }
         for w in weapons
     ]

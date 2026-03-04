@@ -21,13 +21,13 @@ export function NavPanel() {
             {({ open }) => (
                 <>
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <div className="flex h-20 items-center justify-between">
+                        <div className="flex h-14 md:h-20 items-center justify-between">
 
                             {/* Logo / Brand — military insignia style */}
                             <Link to="/" className="flex items-center gap-4 group">
                                 <div className="relative">
                                     <div className="absolute inset-0 bg-amber-500/20 blur-md rounded-full group-hover:bg-amber-500/40 transition-colors" style={{ animation: 'pulse-glow 4s ease-in-out infinite' }}></div>
-                                    <div className="relative h-12 w-12 border-2 border-amber-500/80 rotate-45 flex items-center justify-center bg-black/60 group-hover:border-amber-400 group-hover:-translate-y-0.5 transition-all duration-300">
+                                    <div className="relative h-9 w-9 md:h-12 md:w-12 border-2 border-amber-500/80 rotate-45 flex items-center justify-center bg-black/60 group-hover:border-amber-400 group-hover:-translate-y-0.5 transition-all duration-300">
                                         <div className="absolute inset-0 border border-amber-500/30 m-1"></div>
                                         <span className="-rotate-45 text-amber-500 font-black text-xl tracking-tighter group-hover:text-amber-400 transition-colors font-sans">H</span>
                                     </div>
@@ -36,7 +36,7 @@ export function NavPanel() {
                                     <span className="text-amber-500/90 font-black text-xl tracking-[0.3em] uppercase group-hover:text-amber-400 transition-colors font-sans" style={{ textShadow: '0 0 10px rgba(217,119,6,0.3)' }}>
                                         Hetman
                                     </span>
-                                    <span className="text-[#8a9a6a] text-[10px] tracking-[0.5em] uppercase font-mono-tactical mt-1">
+                                    <span className="hidden sm:block text-[#8a9a6a] text-[10px] tracking-[0.5em] uppercase font-mono-tactical mt-1">
                                         Tactical Ops
                                     </span>
                                 </div>

@@ -252,34 +252,82 @@
     }
 }
 
-/* Mobile screens (≤768px) — Bottom sheet layout */
+/* ═══ MOBILE TAB BAR (hidden on desktop) ═══ */
+.fc-mobile-tabs {
+    display: none;
+}
+
+/* Mobile screens (≤768px) — Tabbed bottom sheet layout */
 @media (max-width: 768px) {
-    .fc-panel {
-        position: absolute;
-        top: auto;
+    .fc-root {
+        height: calc(100dvh - 3.5rem);
+    }
+
+    .fc-mobile-tabs {
+        display: flex;
+        position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
+        z-index: 1003;
+        background: rgba(10, 14, 8, 0.98);
+        border-top: 1px solid #2a3520;
+        padding: 0;
+    }
+
+    .fc-mobile-tab {
+        flex: 1;
+        padding: 12px 8px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #6b7a55;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .fc-mobile-tab.active {
+        color: #fbbf24;
+        border-bottom-color: #d97706;
+        background: rgba(217, 119, 6, 0.08);
+    }
+
+    .fc-panel {
+        position: fixed;
+        top: auto;
+        left: 0;
+        right: 0;
         width: 100%;
-        max-height: 55dvh;
-        /* Leave top 45% for map */
+        max-height: 45dvh;
         border-radius: 16px 16px 0 0;
         border: 1px solid #2a3520;
         border-bottom: none;
         z-index: 1002;
         padding: 14px;
+        padding-bottom: 10px;
         font-size: 0.85rem;
         box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.8);
+        bottom: 46px;
+        /* Sit above the tab bar */
     }
 
-    .fc-panel-left {
-        display: none;
-        /* Hide left map tools on mobile to prioritize firing panel */
-    }
-
+    /* Both panels hidden by default on mobile */
+    .fc-panel-left,
     .fc-panel-right {
+        display: none;
         width: 100%;
         right: 0;
+    }
+
+    /* Show whichever panel has the active tab class */
+    .fc-panel-left.fc-mobile-active,
+    .fc-panel-right.fc-mobile-active {
+        display: block;
     }
 
     /* Enlarge touch targets for mobile dropdowns and inputs */
@@ -300,6 +348,15 @@
 
     .fc-preset-btn,
     .fc-fire-btn {
+        padding: 10px 14px;
+    }
+
+    .fc-unit-btn {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+    }
+
+    .fc-faction-btn {
         padding: 10px 14px;
     }
 }

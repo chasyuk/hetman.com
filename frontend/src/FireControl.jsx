@@ -225,6 +225,7 @@ export function FireControl() {
 
     const [weaponDropdownOpen, setWeaponDropdownOpen] = useState(false)
     const [hoveredWeaponIdx, setHoveredWeaponIdx] = useState(null)
+    const [mobileTab, setMobileTab] = useState('deploy') // 'deploy' or 'control'
     const weaponDropdownRef = useRef(null)
 
     useEffect(() => {
@@ -466,8 +467,20 @@ export function FireControl() {
     return (
         <div className="fc-root">
 
+            {/* ═══ MOBILE TAB BAR ═══ */}
+            <div className="fc-mobile-tabs">
+                <button
+                    className={`fc-mobile-tab ${mobileTab === 'deploy' ? 'active' : ''}`}
+                    onClick={() => setMobileTab('deploy')}
+                >Розгортання</button>
+                <button
+                    className={`fc-mobile-tab ${mobileTab === 'control' ? 'active' : ''}`}
+                    onClick={() => setMobileTab('control')}
+                >Управління</button>
+            </div>
+
             {/* ═══ LEFT PANEL — Deployment ═══ */}
-            <div className="fc-panel fc-panel-left">
+            <div className={`fc-panel fc-panel-left ${mobileTab === 'deploy' ? 'fc-mobile-active' : ''}`}>
                 <h3 className="fc-panel-title">Розгортання військ</h3>
 
                 <div className="fc-faction-row" style={{ marginTop: '14px' }}>
@@ -640,7 +653,7 @@ export function FireControl() {
             </div>
 
             {/* ═══ RIGHT PANEL — Unit Info ═══ */}
-            <div className="fc-panel fc-panel-right">
+            <div className={`fc-panel fc-panel-right ${mobileTab === 'control' ? 'fc-mobile-active' : ''}`}>
                 <h3 className="fc-panel-title">Управління одиницею</h3>
 
                 {!selectedUnit ? (
